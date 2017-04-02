@@ -1,0 +1,302 @@
+# German translations for DSBMC package.
+# Copyright (C) 2016 Marcel Kaiser
+# This file is distributed under the same license as the DSBMC package.
+# Marcel <mk@nic-nac-project.org>, 2016.
+#
+#: dsbmc.c:435
+msgid ""
+msgstr ""
+"Project-Id-Version: dsbmc\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-10-09 22:09+0200\n"
+"PO-Revision-Date: 2011-03-08 21:59+0100\n"
+"Last-Translator: Marcel Kaiser <mk@nic-nac-project.org>\n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: dsbmc.c:79
+#, c-format
+msgid ""
+"<span font=\"monospace\" font_weight=\"bold\">%%d</span> will be replaced by "
+"the device name.\n"
+"<span font=\"monospace\" font_weight=\"bold\">%%m</span> will be replaced by "
+"the mount point."
+msgstr ""
+"<span font=\"monospace\" font_weight=\"bold\">%%d</span> wird durch den "
+"Gerätenamen ersetzt.\n"
+"<span font=\"monospace\" font_weight=\"bold\">%%m</span> wird durch den "
+"Mount Point ersetzt."
+
+#: dsbmc.c:1216 dsbmc.c:1229 dsbmc.c:1252
+msgid "Command string too long"
+msgstr "Befehlszeichenkette zu lang"
+
+#: dsbmc.c:466 dsbmc.c:469
+msgid "Couldn't connect to DSBMD"
+msgstr "Konnte keine Verbindung zu DSBMD herstellen"
+
+#: dsbmc.c:1388
+#, c-format
+msgid "Couldn't create \"%s\""
+msgstr "Konnte \"%s\" nicht erstellen"
+
+#: dsbmc.c:513
+#, c-format
+msgid "Couldn't execute command \"%s\""
+msgstr "Konnte \"%s\" nicht ausführen"
+
+#: dsbmc.c:1342 dsbmc.c:1372
+msgid "Couldn't find you in the password file."
+msgstr "Konnte Sie nicht in der Passwortdatei finden."
+
+#: dsbmc.c:1356 dsbmc.c:1379
+#, c-format
+msgid "Couldn't open \"%s\""
+msgstr "Konnte \"%s\" nicht öffnen"
+
+#: dsbmc.c:457
+msgid "Couldn't read config file"
+msgstr "Konnte die Konfigurationsdatei nicht lesen."
+
+#: dsbmc.c:778 dsbmc.c:792
+msgid "Couldn't write config file"
+msgstr "Konnte die Konfigurationsdatei nicht schreiben."
+
+#: dsbmc.c:225
+msgid "Device already mounted"
+msgstr "Gerät bereits eingehangen"
+
+#: dsbmc.c:228
+msgid "Device busy"
+msgstr "Gerät blockiert"
+
+#: dsbmc.c:227
+msgid "Device not mounted"
+msgstr "Gerät nicht eingehangen"
+
+#: dsbmc.c:1707
+#, c-format
+msgid "Ejecting failed with error code %d"
+msgstr "Auswerfen schlug mit Fehlercode %d fehl."
+
+#: dsbmc.c:1700
+msgid "Ejecting failed with the following error"
+msgstr "Auswerfen schlug mit folgendem Fehler fehl"
+
+#: dsbmc.c:520
+#, c-format
+msgid "Failed to execute shell \"%s\""
+msgstr "Konnte die Shell \"%s\" nicht ausführen"
+
+#: dsbmc.c:410
+msgid "Filemanager: "
+msgstr "Dateimanager"
+
+#: dsbmc.c:1111 dsbmc.c:1123
+msgid "Lost connection to DSBMD"
+msgstr "Verbindung zu DSBMD verloren"
+
+#: dsbmc.c:230
+#, fuzzy
+msgid "Maximum number of connections reached"
+msgstr "Maximale Anzahl von Verbindungen erreicht"
+
+#: dsbmc.c:1204
+#, fuzzy
+msgid "Maximum number of processes reached"
+msgstr "Maximale Anzahl von Prozessen erreicht"
+
+#: dsbmc.c:231
+msgid "Media not ejectable"
+msgstr "Datenträger nicht auswerfbar"
+
+#: dsbmc.c:1452 dsbmc.c:1570
+#, c-format
+msgid "Mounting failed with error code %d"
+msgstr "Einhängen schlug mit Fehlercode %d fehl"
+
+#: dsbmc.c:1447 dsbmc.c:1564
+msgid "Mounting failed with the following error"
+msgstr "Einhängen schlug mit folgendem Fehler fehl"
+
+#: dsbmc.c:238
+msgid "Mouting failed"
+msgstr "Einhängen fehlgeschlagen"
+
+#: dsbmc.c:235
+msgid "No media in drive"
+msgstr "Kein Datenträger im Laufwerk"
+
+#: dsbmc.c:229
+msgid "No such device"
+msgstr "Kein solches Gerät gefunden"
+
+#: dsbmc.c:226
+msgid "Permission denied"
+msgstr "Zugriff verweigert"
+
+#: dsbmc.c:414
+msgid "Play Audio CDs with: "
+msgstr "Spiele Audio CDs mit: "
+
+#: dsbmc.c:411
+msgid "Play DVDs with: "
+msgstr "Spiele DVDs mit: "
+
+#: dsbmc.c:413
+msgid "Play SVCDs with: "
+msgstr "Spiele SVCDs mit: "
+
+#: dsbmc.c:412
+msgid "Play VCDs with: "
+msgstr "Spiele VCDs mit: "
+
+#: dsbmc.c:84
+msgid "Please wait ... "
+msgstr "Bitte warten ... "
+
+#: dsbmc.c:709
+msgid "Preferences"
+msgstr "Einstellungen"
+
+#: dsbmc.c:1629
+msgid "Set CDROM speed"
+msgstr "Setze CDROM-Geschwindigkeit"
+
+#: dsbmc.c:1617
+#, c-format
+msgid "Setting speed failed with error code %d"
+msgstr "Setzen der Geschwindigkeit schlug mit Fehlercode %d fehl."
+
+#: dsbmc.c:1611
+msgid "Setting speed failed with the following error"
+msgstr "Setzen der Geschwindigkeit schlug mit folgendem Fehler fehl"
+
+#: dsbmc.c:67
+msgid ""
+"The device is busy. Try to terminate all applications which are currently "
+"accessing the device or files on the mounted filesystem.\n"
+"\n"
+"<span font_weight=\"bold\">Shall I force ejecting the media?</span>"
+msgstr ""
+"Das Gerät ist blockiert. Versuchen Sie alle Anwendungen zu beenden, die "
+"direkt auf dieses Laufwerk oder auf Dateien, die sich auf dem eingehangenem "
+"Dateisystem befinden, zugreifen.\n"
+"\n"
+"<span font_weight=\"bold\">Soll Ich das Auswerfen erzwingen?</span>"
+
+#: dsbmc.c:73
+msgid ""
+"The device is busy. Try to terminate all applications which are currently "
+"accessing the device or files on the mounted filesystem.\n"
+"\n"
+"<span font_weight=\"bold\">Shall I force unmounting the device?</span>"
+msgstr ""
+"Das Gerät ist blockiert. Versuchen Sie alle Anwendungen zu beenden, die "
+"direkt auf dieses Laufwerk oder auf Dateien, die sich auf dem eingehangenem "
+"Dateisystem befinden, zugreifen.\n"
+"\n"
+"<span font_weight=\"bold\">Soll ich das Aushängen erzwingen?</span>"
+
+#: dsbmc.c:232
+msgid "Unknow command"
+msgstr "Unbekannter Befehl"
+
+#: dsbmc.c:233
+msgid "Unknow option"
+msgstr "Unbekannte Option"
+
+#: dsbmc.c:237
+msgid "Unknown error"
+msgstr "Unbekannter Fehler"
+
+#: dsbmc.c:1240
+#, c-format
+msgid "Unknown field code '%%%c'"
+msgstr "Ungültiger Platzhalter '%%%c'"
+
+#: dsbmc.c:236
+msgid "Unknown filesystem"
+msgstr "Unbekanntes Dateisystem"
+
+#: dsbmc.c:1847
+#, c-format
+msgid "Unknown keyword '%s'"
+msgstr "Unbekanntes Schlüsselwort '%s'"
+
+#: dsbmc.c:1513
+#, c-format
+msgid "Unmounting failed with error code %d"
+msgstr "Aushängen mit Fehlercode %d gescheitert"
+
+#: dsbmc.c:1506
+msgid "Unmounting failed with the following error"
+msgstr "Aushängen mit folgendem Fehler gescheitert"
+
+#: dsbmc.c:482
+msgid "You are not allowed to connect to DSBMD"
+msgstr "Sie haben keine Berechtigung, sich mit DSBMD zu verbinden"
+
+#: dsbmc.c:52 dsbmc.c:751 dsbmc.c:1648
+msgid "_Cancel"
+msgstr "_Abbrechen"
+
+#: dsbmc.c:315
+msgid "_Eject media"
+msgstr "Medium _auswerfen"
+
+#: dsbmc.c:582
+msgid "_File"
+msgstr "_Datei"
+
+#: dsbmc.c:312
+msgid "_Mount drive"
+msgstr "Laufwerk _einhängen"
+
+#: dsbmc.c:50
+msgid "_No"
+msgstr "_Nein"
+
+#: dsbmc.c:49 dsbmc.c:750 dsbmc.c:1647
+msgid "_Ok"
+msgstr "_Ok"
+
+#: dsbmc.c:310
+msgid "_Open"
+msgstr "_Öffnen"
+
+#: dsbmc.c:311
+msgid "_Play"
+msgstr "_Abspielen"
+
+#: dsbmc.c:570
+msgid "_Preferences"
+msgstr "_Einstellungen"
+
+#: dsbmc.c:577
+msgid "_Quit"
+msgstr "_Beenden"
+
+#: dsbmc.c:314
+msgid "_Set max. CDROM speed"
+msgstr "_Setze max. CDROM-Geschwindigkeit"
+
+#: dsbmc.c:313
+msgid "_Unmount drive"
+msgstr "Laufwerk _aushängen"
+
+#: dsbmc.c:51
+msgid "_Yes"
+msgstr "_Ja"
+
+#: dsbmc.c:486 dsbmc.c:1325
+msgid "DSBMD just shut down."
+msgstr "DSBMD hat gerade seinen Dienst quittiert."
+
+msgid " %s\tDisk size: %.1f %s\tFree: %.1f %s"
+msgstr " %s\tKapazität: %.1f %s\tFrei: %.1f %s"
+

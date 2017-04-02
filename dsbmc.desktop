@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=DSBMC
+Exec=dsbmc
+Icon=drive-harddisk-usb
+Terminal=false
+StartupNotify=false
+Type=Application
+Categories=System;Application
+
