@@ -161,6 +161,7 @@ struct drive_s {
 #define	DSKTYPE_VCD	0x07
 #define	DSKTYPE_SVCD	0x08
 #define	DSKTYPE_FLOPPY	0x09
+#define DSKTYPE_MMC	0x0a
 	int   speed;
 	char  *dev;		/* Device name */
 	char  *volid;		/* Volume ID */
@@ -301,6 +302,8 @@ static struct pixbuftbl_s {
 	{ "HDD",     ICON_SIZE_ICON, NULL, { "drive-harddisk",
 					     "harddrive",
 					     GTK_STOCK_HARDDISK,     NULL } },
+	{ "MMC",     ICON_SIZE_ICON, NULL, { "media-flash-sd-mmc",
+					     "media-flash",	     NULL } },
 	{ "FLOPPY",  ICON_SIZE_ICON, NULL, { "media-floppy",	     NULL } },
 	{ "mounted", ICON_SIZE_ICON, NULL, { "folder",
 					     GTK_STOCK_DIRECTORY,    NULL } },
@@ -362,7 +365,8 @@ struct disktypetbl_s {
 	{ "DVD",     DSKTYPE_DVD,     NULL, NULL },
 	{ "VCD",     DSKTYPE_VCD,     NULL, NULL },
 	{ "SVCD",    DSKTYPE_SVCD,    NULL, NULL },
-	{ "HDD",     DSKTYPE_HDD,     NULL, NULL }
+	{ "HDD",     DSKTYPE_HDD,     NULL, NULL },
+	{ "MMC",     DSKTYPE_MMC,     NULL, NULL }
 };
 #define NDSKTYPES (sizeof(disktypetbl) / sizeof(struct disktypetbl_s))
 
