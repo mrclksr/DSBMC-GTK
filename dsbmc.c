@@ -175,10 +175,12 @@ struct dsbmdevent_s {
 #define EVENT_SUCCESS_MSG 'O'
 #define EVENT_WARNING_MSG 'W'
 #define EVENT_ERROR_MSG	  'E'
-#define EVENT_INFO_MSG	  'I'
+#define EVENT_MOUNT	  'M'
+#define EVENT_UNMOUNT	  'U'
+#define EVENT_SHUTDOWN	  'S'
+#define EVENT_SPEED	  'V'
 #define EVENT_ADD_DEVICE  '+'
 #define EVENT_DEL_DEVICE  '-'
-	char	 *msgtype;	/* Type of info message. */
 	char	 *command;	/* In case of a reply, the executed command. */
 	int	 mntcmderr;	/* Return code of external mount command. */
 	int	 code;		/* The error code */
@@ -221,9 +223,12 @@ struct dsbmdkeyword_s {
 } dsbmdkeywords[] = {
 	{ "+",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
 	{ "-",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
-	{ "I",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
-	{ "E",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
 	{ "O",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
+	{ "E",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
+	{ "M",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
+	{ "U",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
+	{ "V",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
+	{ "S",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
 	{ "command=",	KWTYPE_STRING,	 (val_t)&dsbmdevent.command	   },
 	{ "dev=",	KWTYPE_STRING,	 (val_t)&dsbmdevent.drvinfo.dev    },
 	{ "fs=",	KWTYPE_STRING,	 (val_t)&dsbmdevent.drvinfo.fsname },
@@ -234,7 +239,6 @@ struct dsbmdkeyword_s {
 	{ "code=",	KWTYPE_INTEGER,	 (val_t)&dsbmdevent.code	   },
 	{ "cmds=",	KWTYPE_COMMANDS, (val_t)(char *)0		   },
 	{ "mntcmderr=",	KWTYPE_INTEGER,	 (val_t)&dsbmdevent.mntcmderr	   },
-	{ "msgtype=",	KWTYPE_STRING,	 (val_t)&dsbmdevent.msgtype	   },
 	{ "mediasize=", KWTYPE_UINT64,	 (val_t)&dsbmdevent.mediasize	   },
 	{ "used=",	KWTYPE_UINT64,	 (val_t)&dsbmdevent.used	   },
 	{ "free=",	KWTYPE_UINT64,	 (val_t)&dsbmdevent.free	   }
@@ -621,9 +625,7 @@ main(int argc, char *argv[])
 				continue;
 			xerrx(NULL, EXIT_FAILURE,
 			    _("You are not allowed to connect to DSBMD"));
-		} else if (dsbmdevent.type == EVENT_INFO_MSG) {
-			if (strcmp(dsbmdevent.msgtype, "shutdown") != 0)
-				continue;
+		} else if (dsbmdevent.type == EVENT_SHUTDOWN) {
 			xerrx(NULL, EXIT_FAILURE, _("DSBMD just shut down."));
 		}
 	}
@@ -1491,30 +1493,26 @@ process_event(char *buf)
 		del_icon(dsbmdevent.drvinfo.dev);
 		del_drive(dsbmdevent.drvinfo.dev);
 		(void)create_icontbl(mainwin.store);
-	} else if (dsbmdevent.type == EVENT_INFO_MSG) {
-		if (dsbmdevent.msgtype == NULL)
-			return (-1);
-		if (strcmp(dsbmdevent.msgtype, "mount") == 0) {
-			if ((drvp = lookupdrv(dsbmdevent.drvinfo.dev)) == NULL)
-				return (dsbmdevent.type);
-			drvp->mounted = true;
-			free(drvp->mntpt);
-			drvp->mntpt = strdup(dsbmdevent.drvinfo.mntpt);
-			update_icons();
-		} else if (strcmp(dsbmdevent.msgtype, "unmount") == 0) {
-			if ((drvp = lookupdrv(dsbmdevent.drvinfo.dev)) == NULL)
+	} else if (dsbmdevent.type == EVENT_MOUNT) {
+		if ((drvp = lookupdrv(dsbmdevent.drvinfo.dev)) == NULL)
+			return (dsbmdevent.type);
+		drvp->mounted = true;
+		free(drvp->mntpt);
+		drvp->mntpt = strdup(dsbmdevent.drvinfo.mntpt);
+		update_icons();
+	} else if (dsbmdevent.type == EVENT_UNMOUNT) {
+		if ((drvp = lookupdrv(dsbmdevent.drvinfo.dev)) == NULL)
 				return (dsbmdevent.type);
 			drvp->mounted = false;
 			free(drvp->mntpt);
 			drvp->mntpt = NULL;
 			update_icons();
-		} else if (strcmp(dsbmdevent.msgtype, "speed") == 0) {
-			if ((drvp = lookupdrv(dsbmdevent.drvinfo.dev)) == NULL)
-				return (dsbmdevent.type);
-			drvp->speed = dsbmdevent.drvinfo.speed;
-		} else if (strcmp(dsbmdevent.msgtype, "shutdown") == 0)
-			xerrx(NULL, EXIT_FAILURE, _("DSBMD just shut down."));
-	}
+	} else if (dsbmdevent.type == EVENT_SPEED) {
+		if ((drvp = lookupdrv(dsbmdevent.drvinfo.dev)) == NULL)
+			return (dsbmdevent.type);
+		drvp->speed = dsbmdevent.drvinfo.speed;
+	} else if (dsbmdevent.type == EVENT_SHUTDOWN)
+		xerrx(NULL, EXIT_FAILURE, _("DSBMD just shut down."));
 	return (dsbmdevent.type);
 }
 
