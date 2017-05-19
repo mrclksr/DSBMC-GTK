@@ -162,6 +162,8 @@ struct drive_s {
 #define	DSKTYPE_SVCD	0x08
 #define	DSKTYPE_FLOPPY	0x09
 #define DSKTYPE_MMC	0x0a
+#define DSKTYPE_PTP	0x0b
+#define DSKTYPE_MTP	0x0c
 	int   speed;
 	char  *dev;		/* Device name */
 	char  *volid;		/* Volume ID */
@@ -290,6 +292,10 @@ static struct pixbuftbl_s {
 	GdkPixbuf  *icon;	/* Icons for menu and devices. */
 	const char *name[4];	/* Icon name with alternatives. */
 } pixbuftbl[] = {
+	{ "MTP",     ICON_SIZE_ICON, NULL, { "multimedia-player",
+					     "drive-harddisk-usb",   NULL } },
+	{ "PTP",     ICON_SIZE_ICON, NULL, { "camera-photo",
+					     "drive-harddisk-usb",   NULL } },
 	{ "DVD",     ICON_SIZE_ICON, NULL, { "media-optical-dvd",
 					     "drive-optical",        NULL } },
 	{ "DATACD",  ICON_SIZE_ICON, NULL, { "media-optical-cd",
@@ -370,7 +376,9 @@ struct disktypetbl_s {
 	{ "VCD",     DSKTYPE_VCD,     NULL, NULL },
 	{ "SVCD",    DSKTYPE_SVCD,    NULL, NULL },
 	{ "HDD",     DSKTYPE_HDD,     NULL, NULL },
-	{ "MMC",     DSKTYPE_MMC,     NULL, NULL }
+	{ "MMC",     DSKTYPE_MMC,     NULL, NULL },
+	{ "PTP",     DSKTYPE_PTP,     NULL, NULL },
+	{ "MTP",     DSKTYPE_MTP,     NULL, NULL }
 };
 #define NDSKTYPES (sizeof(disktypetbl) / sizeof(struct disktypetbl_s))
 
