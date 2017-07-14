@@ -300,7 +300,9 @@ static struct pixbuftbl_s {
 					     "drive-optical",        NULL } },
 	{ "DATACD",  ICON_SIZE_ICON, NULL, { "media-optical-cd",
 					     "drive-optical",	     NULL } },
-	{ "USBDISK", ICON_SIZE_ICON, NULL, { "drive-harddisk-usb",   NULL } },
+	{ "USBDISK", ICON_SIZE_ICON, NULL, { "drive-harddisk-usb",
+					     "drive-removable-media",
+					     "drive-harddisk",	     NULL } },
 	{ "RAWCD",   ICON_SIZE_ICON, NULL, { "media-optical-cd",
 					     "drive-optical",	     NULL } },
 	{ "AUDIOCD", ICON_SIZE_ICON, NULL, { "media-optical-audio",
@@ -694,15 +696,13 @@ usage()
 static void
 create_mainwin()
 {
-	GdkPixbuf     *icon;
-	GtkWidget     *menu, *root_menu, *menu_bar, *item, *sw, *image, *vbox;
-	GtkIconTheme  *icon_theme;
+	GdkPixbuf *icon;
+	GtkWidget *menu, *root_menu, *menu_bar, *item, *sw, *image, *vbox;
 
-	icon_theme = gtk_icon_theme_get_default();
-	if ((icon = gtk_icon_theme_load_icon(icon_theme,
-	    "drive-harddisk-usb", 32, 0, NULL)) == NULL)
-		icon = gtk_icon_theme_load_icon(icon_theme,
-		    GTK_STOCK_MISSING_IMAGE, 32, 0, NULL);
+	if ((icon = load_icon(32, "drive-harddisk-usb",
+	    "drive-removable-media", "drive-harddisk", NULL)) == NULL) {
+		icon = load_icon(32, GTK_STOCK_MISSING_IMAGE, NULL);
+	}
 	mainwin.win = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
 	gtk_window_set_default_size(mainwin.win, *mainwin.width,
 	    *mainwin.height);
