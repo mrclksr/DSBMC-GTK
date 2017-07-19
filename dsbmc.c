@@ -1371,7 +1371,7 @@ exec_cmd(const char *cmdstr, drive_t *drvp)
 	int	 i, n, len;
 	char	 *cmdbuf, *p;
 	pid_t	 pid;
-	sigset_t sigmask;
+	sigset_t sigmask, savedmask;
 
 	/* try to find a free slot. */
 	for (i = 0; i < NPROCS; i++) {
@@ -1432,13 +1432,15 @@ exec_cmd(const char *cmdstr, drive_t *drvp)
 	}
 	/* Block SIGCHLD */
 	(void)sigemptyset(&sigmask); (void)sigaddset(&sigmask, SIGCHLD);
-	(void)sigprocmask(SIG_BLOCK, &sigmask, NULL);
+	(void)sigprocmask(SIG_BLOCK, &sigmask, &savedmask);
 
 	switch ((pid = vfork())) {
 	case -1:
 		xerr(mainwin.win, EXIT_FAILURE, "vfork()");
 		/* NOTREACHED */
 	case  0:
+		/* Restore old signal mask */
+		(void)sigprocmask(SIG_SETMASK, &savedmask, NULL);
 		execl(_PATH_BSHELL, _PATH_BSHELL, "-c", cmdbuf, NULL);
 		proctbl[i].saved_errno = errno;
 		_exit(255);
@@ -1447,8 +1449,8 @@ exec_cmd(const char *cmdstr, drive_t *drvp)
 		proctbl[i].pid = pid;
 		if ((proctbl[i].cmdstr = strdup(cmdbuf)) == NULL)
 			xerr(mainwin.win, EXIT_FAILURE, "strdup()");
-		/* Now, we are ready for SIGCHLD again. */
-		(void)sigprocmask(SIG_UNBLOCK, &sigmask, NULL);
+		/* Restore old signal mask */
+		(void)sigprocmask(SIG_SETMASK, &savedmask, NULL);
 		break;
 	}
 cleanup:
