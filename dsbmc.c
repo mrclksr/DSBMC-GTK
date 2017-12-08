@@ -96,6 +96,7 @@ typedef struct ctxmenu_s ctxmenu_t;
 static int	  process_event(char *);
 static int	  parse_dsbmdevent(char *);
 static char	  *readln(bool);
+static char	  **add_string(char ***, const char *);
 static FILE	  *uconnect(const char *);
 static void	  usage(void);
 static void	  cleanup(int);
@@ -123,6 +124,7 @@ static void	  cb_speed(GtkWidget *, gpointer);
 static void	  cb_open(GtkWidget *, gpointer);
 static void	  cb_play(GtkWidget *, gpointer);
 static void	  cb_size(GtkWidget *, gpointer);
+static void	  cb_hide(GtkWidget *, gpointer);
 static void	  cb_cb(GtkWidget *, gpointer);
 static void	  process_mount_reply(icon_t *);
 static void	  process_unmount_reply(icon_t *);
@@ -151,6 +153,7 @@ struct drive_s {
 #define DRVCMD_PLAY	(1 << 0x03)
 #define DRVCMD_OPEN	(1 << 0x04)
 #define DRVCMD_SPEED	(1 << 0x05)
+#define DRVCMD_HIDE	(1 << 0x06)
 	char  type;
 #define DSKTYPE_HDD	0x01
 #define DSKTYPE_USBDISK	0x02
@@ -337,7 +340,8 @@ static struct pixbuftbl_s {
 	{ "mount",   ICON_SIZE_MENU, NULL, {  "go-up",
 					      GTK_STOCK_GO_UP,	     NULL } },
 	{ "unmount", ICON_SIZE_MENU, NULL, {  "go-down",
-					      GTK_STOCK_GO_DOWN,     NULL } }
+					      GTK_STOCK_GO_DOWN,     NULL } },
+	{ "hide",    ICON_SIZE_MENU, NULL, {  "list-remove", NULL } }
 };
 #define PIXBUFTBLSZ (sizeof(pixbuftbl) / sizeof(struct pixbuftbl_s))
 
@@ -356,7 +360,8 @@ static struct menu_commands_s {
 	{ DRVCMD_MOUNT,	  "_Mount drive",	   &cb_mount   },
 	{ DRVCMD_UNMOUNT, "_Unmount drive",	   &cb_unmount },
 	{ DRVCMD_SPEED,	  "_Set max. CDROM speed", &cb_speed   },
-	{ DRVCMD_EJECT,	  "_Eject media",	   &cb_eject   }
+	{ DRVCMD_EJECT,	  "_Eject media",	   &cb_eject   },
+	{ DRVCMD_HIDE,	  "_Hide",		   &cb_hide    }
 };
 #define NMENUCMDS (sizeof(menucmds) / sizeof(struct menu_commands_s))
 
@@ -397,7 +402,8 @@ struct cmdtbl_s {
 	{ "mount",   DRVCMD_MOUNT,   NULL },
 	{ "unmount", DRVCMD_UNMOUNT, NULL },
 	{ "eject",   DRVCMD_EJECT,   NULL },
-	{ "speed",   DRVCMD_SPEED,   NULL }
+	{ "speed",   DRVCMD_SPEED,   NULL },
+	{ "hide",    DRVCMD_HIDE,    NULL }
 };
 #define NCMDS (sizeof(cmdtbl) / sizeof(struct cmdtbl_s))
 
@@ -493,7 +499,8 @@ struct command_s {
 enum {
 	CFG_PLAY_CDDA, CFG_PLAY_DVD, CFG_PLAY_VCD, CFG_PLAY_SVCD,
 	CFG_FILEMANAGER, CFG_DVD_AUTO, CFG_VCD_AUTO, CFG_SVCD_AUTO,
-	CFG_CDDA_AUTO, CFG_WIDTH, CFG_HEIGHT, CFG_POS_X, CFG_POS_Y, CFG_NVARS
+	CFG_CDDA_AUTO, CFG_WIDTH, CFG_HEIGHT, CFG_POS_X, CFG_POS_Y,
+	CFG_HIDE, CFG_NVARS
 };
 
 static dsbcfg_vardef_t vardefs[] = {
@@ -509,7 +516,8 @@ static dsbcfg_vardef_t vardefs[] = {
   { "dvd_auto",    DSBCFG_VAR_BOOLEAN, CFG_DVD_AUTO,    DSBCFG_VAL(false)    },
   { "vcd_auto",    DSBCFG_VAR_BOOLEAN, CFG_VCD_AUTO,    DSBCFG_VAL(false)    },
   { "svcd_auto",   DSBCFG_VAR_BOOLEAN, CFG_SVCD_AUTO,   DSBCFG_VAL(false)    },
-  { "cdda_auto",   DSBCFG_VAR_BOOLEAN, CFG_CDDA_AUTO,   DSBCFG_VAL(false)    }
+  { "cdda_auto",   DSBCFG_VAR_BOOLEAN, CFG_CDDA_AUTO,   DSBCFG_VAL(false)    },
+  { "ignore",	   DSBCFG_VAR_STRINGS, CFG_HIDE,	DSBCFG_VAL((char **)NULL)     }
 };
 
 static int	cmdqlen = 0;	  /* # of commands in command queue. */
@@ -1157,6 +1165,8 @@ static GtkListStore *
 create_icontbl(GtkListStore *store)
 {
 	int	    i;
+	bool	    hide;
+	char **v;
 	GtkTreeIter iter;
 
 	if (store != NULL) {
@@ -1167,6 +1177,17 @@ create_icontbl(GtkListStore *store)
 		    GDK_TYPE_PIXBUF, G_TYPE_POINTER, G_TYPE_STRING);
 	}
 	for (i = 0; i < nicons; i++) {
+		for (hide = false, v = dsbcfg_getval(cfg, CFG_HIDE).strings;
+		    !hide && v != NULL && *v != NULL; v++) {
+			if (strcmp(icons[i]->drvp->dev, *v) == 0)
+				hide = true;
+			else if (icons[i]->drvp->mntpt != NULL &&
+			    strcmp(icons[i]->drvp->mntpt, *v) == 0)
+				hide = true;
+
+		}
+		if (hide)
+			continue;
 		gtk_list_store_append(GTK_LIST_STORE(store), &iter);
 		gtk_list_store_set(GTK_LIST_STORE(store), &iter,
 		    COL_NAME, icons[i]->drvp->volid,
@@ -1815,6 +1836,41 @@ cb_size(GtkWidget *widget, gpointer data)
 	sndcmd(process_size_reply, icon, "size %s\n", icon->drvp->dev);
 }
 
+static char **
+add_string(char ***strv, const char *str)
+{       
+	static int    n;
+	static char **p;
+
+	if (*strv == NULL)
+		n = 0;
+	else {
+		for (p = *strv, n = 0; p[n] != NULL; n++)
+			;
+	}
+	n += 2;
+	if ((p = realloc(*strv, n * sizeof(char *))) == NULL)
+		err(EXIT_FAILURE, "realloc()");
+	*strv = p;
+	if ((p[n - 2] = strdup(str)) == NULL)
+		err(EXIT_FAILURE, "strdup()");
+	p[n - 1] = NULL;
+
+	return (p);
+}
+
+static void
+cb_hide(GtkWidget *widget, gpointer data)
+{
+	char   **list;
+	icon_t *icon;
+
+	icon = (icon_t *)data;
+	list = add_string(&dsbcfg_getval(cfg, CFG_HIDE).strings,
+	    icon->drvp->mounted ? icon->drvp->mntpt : icon->drvp->dev);
+	(void)create_icontbl(mainwin.store);
+}
+	
 static void
 process_size_reply(icon_t *icon)
 {
@@ -2012,6 +2068,7 @@ cb_play(GtkWidget *widget, gpointer data)
 static drive_t *
 add_drive(drive_t *drvp)
 {
+
 	drives = realloc(drives, (ndrives + 1) * sizeof(drive_t *));
 	if (drives == NULL || drvp->dev == NULL)
 		return (NULL);
@@ -2055,6 +2112,7 @@ add_drive(drive_t *drvp)
 	}
 	if (drives[ndrives]->volid == NULL)
 		drives[ndrives]->volid = strdup(drvp->dev);
+	drives[ndrives]->cmds |= (DRVCMD_OPEN | DRVCMD_HIDE);
 	return (drives[ndrives++]);
 }
 
