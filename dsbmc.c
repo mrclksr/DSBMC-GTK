@@ -555,7 +555,6 @@ main(int argc, char *argv[])
 	int	   ch, i;
 	gint	   iotag;
 	char	   *p, *path;
-	drive_t	   *dp;
 	sigset_t   sigmask;
         GIOChannel *ioc;
 
@@ -635,9 +634,7 @@ main(int argc, char *argv[])
 		if (parse_dsbmdevent(p) == -1)
 			continue;
 		if (dsbmdevent.type == EVENT_ADD_DEVICE) {
-			dp = add_drive(&dsbmdevent.drvinfo);
-			if (dp == NULL)
-				err(EXIT_FAILURE, "add_drive()");
+			add_drive(&dsbmdevent.drvinfo);
 		} else if (dsbmdevent.type == EVENT_ERROR_MSG) {
 			if (dsbmdevent.code != ERR_PERMISSION_DENIED)
 				continue;
@@ -1165,8 +1162,6 @@ static GtkListStore *
 create_icontbl(GtkListStore *store)
 {
 	int	    i;
-	bool	    hide;
-	char **v;
 	GtkTreeIter iter;
 
 	if (store != NULL) {
@@ -1177,17 +1172,6 @@ create_icontbl(GtkListStore *store)
 		    GDK_TYPE_PIXBUF, G_TYPE_POINTER, G_TYPE_STRING);
 	}
 	for (i = 0; i < nicons; i++) {
-		for (hide = false, v = dsbcfg_getval(cfg, CFG_HIDE).strings;
-		    !hide && v != NULL && *v != NULL; v++) {
-			if (strcmp(icons[i]->drvp->dev, *v) == 0)
-				hide = true;
-			else if (icons[i]->drvp->mntpt != NULL &&
-			    strcmp(icons[i]->drvp->mntpt, *v) == 0)
-				hide = true;
-
-		}
-		if (hide)
-			continue;
 		gtk_list_store_append(GTK_LIST_STORE(store), &iter);
 		gtk_list_store_set(GTK_LIST_STORE(store), &iter,
 		    COL_NAME, icons[i]->drvp->volid,
@@ -1493,7 +1477,7 @@ process_event(char *buf)
 		return (-1);
 	if (dsbmdevent.type == EVENT_ADD_DEVICE) {
 		if ((drvp = add_drive(&dsbmdevent.drvinfo)) == NULL)
-			err(EXIT_FAILURE, "add_drive()");
+			return (dsbmdevent.type);
 		(void)add_icon(drvp);
 		(void)create_icontbl(mainwin.store);
 		gtk_window_deiconify(GTK_WINDOW(mainwin.win));
@@ -2068,12 +2052,23 @@ cb_play(GtkWidget *widget, gpointer data)
 static drive_t *
 add_drive(drive_t *drvp)
 {
+	bool hide;
+	char **v;
 
+	for (hide = false, v = dsbcfg_getval(cfg, CFG_HIDE).strings;
+	    !hide && v != NULL && *v != NULL; v++) {
+		if (strcmp(drvp->dev, *v) == 0)
+			hide = true;
+		else if (drvp->mntpt != NULL && strcmp(drvp->mntpt, *v) == 0)
+			hide = true;
+	}
+	if (hide)
+		return (NULL);
 	drives = realloc(drives, (ndrives + 1) * sizeof(drive_t *));
 	if (drives == NULL || drvp->dev == NULL)
-		return (NULL);
+		err(EXIT_FAILURE, "realloc()");
 	if ((drives[ndrives] = malloc(sizeof(drive_t))) == NULL)
-		return (NULL);
+		err(EXIT_FAILURE, "malloc()");
 	drives[ndrives]->dev = strdup(drvp->dev);
 	if (drvp->volid != NULL)
 		drives[ndrives]->volid = strdup(drvp->volid);
