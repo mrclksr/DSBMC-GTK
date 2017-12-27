@@ -124,7 +124,6 @@ static void	  cb_speed(GtkWidget *, gpointer);
 static void	  cb_open(GtkWidget *, gpointer);
 static void	  cb_play(GtkWidget *, gpointer);
 static void	  cb_size(GtkWidget *, gpointer);
-static void	  cb_hide(GtkWidget *, gpointer);
 static void	  cb_cb(GtkWidget *, gpointer);
 static void	  process_mount_reply(icon_t *);
 static void	  process_unmount_reply(icon_t *);
@@ -360,8 +359,7 @@ static struct menu_commands_s {
 	{ DRVCMD_MOUNT,	  "_Mount drive",	   &cb_mount   },
 	{ DRVCMD_UNMOUNT, "_Unmount drive",	   &cb_unmount },
 	{ DRVCMD_SPEED,	  "_Set max. CDROM speed", &cb_speed   },
-	{ DRVCMD_EJECT,	  "_Eject media",	   &cb_eject   },
-	{ DRVCMD_HIDE,	  "_Hide",		   &cb_hide    }
+	{ DRVCMD_EJECT,	  "_Eject media",	   &cb_eject   }
 };
 #define NMENUCMDS (sizeof(menucmds) / sizeof(struct menu_commands_s))
 
@@ -402,8 +400,7 @@ struct cmdtbl_s {
 	{ "mount",   DRVCMD_MOUNT,   NULL },
 	{ "unmount", DRVCMD_UNMOUNT, NULL },
 	{ "eject",   DRVCMD_EJECT,   NULL },
-	{ "speed",   DRVCMD_SPEED,   NULL },
-	{ "hide",    DRVCMD_HIDE,    NULL }
+	{ "speed",   DRVCMD_SPEED,   NULL }
 };
 #define NCMDS (sizeof(cmdtbl) / sizeof(struct cmdtbl_s))
 
@@ -1843,18 +1840,6 @@ add_string(char ***strv, const char *str)
 	return (p);
 }
 
-static void
-cb_hide(GtkWidget *widget, gpointer data)
-{
-	char   **list;
-	icon_t *icon;
-
-	icon = (icon_t *)data;
-	list = add_string(&dsbcfg_getval(cfg, CFG_HIDE).strings,
-	    icon->drvp->mounted ? icon->drvp->mntpt : icon->drvp->dev);
-	(void)create_icontbl(mainwin.store);
-}
-	
 static void
 process_size_reply(icon_t *icon)
 {
