@@ -96,7 +96,6 @@ typedef struct ctxmenu_s ctxmenu_t;
 static int	  process_event(char *);
 static int	  parse_dsbmdevent(char *);
 static char	  *readln(bool);
-static char	  **add_string(char ***, const char *);
 static FILE	  *uconnect(const char *);
 static void	  usage(void);
 static void	  cleanup(int);
@@ -1815,29 +1814,6 @@ cb_size(GtkWidget *widget, gpointer data)
 
 	icon = (icon_t *)data;
 	sndcmd(process_size_reply, icon, "size %s\n", icon->drvp->dev);
-}
-
-static char **
-add_string(char ***strv, const char *str)
-{       
-	static int    n;
-	static char **p;
-
-	if (*strv == NULL)
-		n = 0;
-	else {
-		for (p = *strv, n = 0; p[n] != NULL; n++)
-			;
-	}
-	n += 2;
-	if ((p = realloc(*strv, n * sizeof(char *))) == NULL)
-		err(EXIT_FAILURE, "realloc()");
-	*strv = p;
-	if ((p[n - 2] = strdup(str)) == NULL)
-		err(EXIT_FAILURE, "strdup()");
-	p[n - 1] = NULL;
-
-	return (p);
 }
 
 static void
