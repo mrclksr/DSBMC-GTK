@@ -808,10 +808,12 @@ window_state_event(GtkWidget *wdg, GdkEvent *event, gpointer unused)
 		*mainwin.posy   = ((GdkEventConfigure *)event)->y;
 		*mainwin.width  = ((GdkEventConfigure *)event)->width;
 		*mainwin.height = ((GdkEventConfigure *)event)->height;
+		dsbcfg_write(PROGRAM, PATH_CONFIG, cfg);
 		break;
 	case GDK_WINDOW_STATE:
 		mainwin.win_state =
 		    ((GdkEventWindowState *)event)->new_window_state;
+		dsbcfg_write(PROGRAM, PATH_CONFIG, cfg);
 		break;
 	}
 	return (FALSE);
