@@ -135,6 +135,7 @@ static void	  busywin(const char *msg, bool show);
 static icon_t	  *add_icon(drive_t *);
 static drive_t	  *add_drive(drive_t *);
 static drive_t	  *lookupdrv(const char *);
+static drive_t	  *lookupdrv_from_mnt(const char *);
 static gboolean	  window_state_event(GtkWidget *, GdkEvent *, gpointer);
 static gboolean	  readevent(GIOChannel *, GIOCondition, gpointer);
 static gboolean	  icon_clicked(GtkWidget *, GdkEvent *, gpointer);
@@ -453,6 +454,7 @@ enum {
 	SETTINGS_CDDA, SETTINGS_NCMDS
 };
 static struct settingsmenu_s {
+	char ***ignore_list;
 	struct settings_cmd_s {
 		const char *action;
 		char	   **cmdstr;
@@ -612,6 +614,8 @@ main(int argc, char *argv[])
 	    (bool *)&dsbcfg_getval(cfg, CFG_CDDA_AUTO).boolean;
 	settingsmenu.cmds[SETTINGS_CDDA].cmdstr = 
 	    &dsbcfg_getval(cfg, CFG_PLAY_CDDA).string;
+	settingsmenu.ignore_list =
+	    &dsbcfg_getval(cfg, CFG_HIDE).strings;
 
 	if (argc > 0)
 		path = argv[0];
@@ -853,12 +857,14 @@ static void
 settings_menu()
 {
 	int	     i, j;
-	char	     *q;
-	bool	     save;
+	char	     *s, *q, *qs, **v;
+	bool	     error;
+	size_t	     len;
+	drive_t	     *dp;
 	const char   *p;
 	GdkPixbuf    *icon;
 	GtkWidget    *win, *abt, *cbt, *cb, *label, *table, *image;
-	GtkWidget    *entry[SETTINGS_NCMDS];
+	GtkWidget    *entry[SETTINGS_NCMDS + 1];
 	GtkIconTheme *icon_theme;
 
 	win = gtk_dialog_new();
@@ -906,9 +912,43 @@ settings_menu()
 	 	gtk_table_attach(GTK_TABLE(table), entry[i], 2, 3, i, i + 1,
 		    GTK_EXPAND |GTK_FILL, 0, 0, 0);
 	}
+	label = new_label(ALIGN_LEFT, ALIGN_CENTER,
+	    _("Mount points to ignore:"));
+	entry[i] = gtk_entry_new();
+
+	for (len = 0, v = *settingsmenu.ignore_list;
+	    v != NULL && *v != NULL; v++)
+		len += strlen(*v) + 4;
+	if (len > 0) {
+		if ((s = malloc(len * 2)) == NULL)
+			xerr(mainwin.win, EXIT_FAILURE, "malloc()");
+		(void)memset(s, 0, len);
+		for (v = *settingsmenu.ignore_list;
+		    v != NULL && *v != NULL; v++) {
+			qs = g_strdup_printf("%s\"%s\"",
+			    v != *settingsmenu.ignore_list ? ", " : "", *v);
+			if (qs == NULL) {
+				xerr(mainwin.win, EXIT_FAILURE,
+				    "g_strdup_printf()");
+			}
+			(void)strncat(s, qs, len);
+			len -= strlen(qs);
+			free(qs);
+		}
+		gtk_entry_set_text(GTK_ENTRY(entry[i]), s);
+		free(s);
+	}
+	gtk_widget_set_tooltip_text(GTK_WIDGET(entry[i]),
+	    _("Comma separated list of mount points to ignore"));
+	gtk_entry_set_width_chars(GTK_ENTRY(entry[i]), 35);
+ 	gtk_table_attach(GTK_TABLE(table), label, 1, 2, i, i + 1,
+	    GTK_FILL, 0, 0, 0);	
+	gtk_table_attach(GTK_TABLE(table), entry[i], 2, 3, i, i + 1,
+	    GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
 	label = new_pango_label(ALIGN_LEFT, ALIGN_CENTER,
 	    _(SETTINGS_MENU_INFO_MSG));
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 5, 6,
+	gtk_table_attach(GTK_TABLE(table), label, 2, 3, i + 1, i + 2,
 	    GTK_FILL, 0, 0, 0);
 
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(win)->vbox), table,
@@ -922,27 +962,49 @@ settings_menu()
 	gtk_widget_show_all(win);
 
 	/* Unselect all entries. */
-	for (i = 0; i < SETTINGS_NCMDS; i++)
+	for (i = 0; i < SETTINGS_NCMDS + 1; i++)
 		gtk_editable_select_region(GTK_EDITABLE(entry[i]), 0, 0);
-
-	switch (gtk_dialog_run(GTK_DIALOG(win))) {
-	case GTK_RESPONSE_ACCEPT:
-		for (save = false, i = 0; i < SETTINGS_NCMDS; i++) {
+	for (;;) {
+		if (gtk_dialog_run(GTK_DIALOG(win)) != GTK_RESPONSE_ACCEPT)
+			break;
+		for (i = 0; i < SETTINGS_NCMDS; i++) {
 			p = gtk_entry_get_text(GTK_ENTRY(entry[i]));
 			q = *settingsmenu.cmds[i].cmdstr;
 			if (strcmp(p, q) == 0)
 				continue;
-			save = true;
 			free(q);
 			q = *settingsmenu.cmds[i].cmdstr = g_strdup(p);
-			if (q == NULL)
-				xerr(mainwin.win, EXIT_FAILURE, "g_strdup()");
+			if (q == NULL) {
+				xerr(GTK_WINDOW(win), EXIT_FAILURE,
+				    "g_strdup()");
+			}
 		}
-		if (save)
-			dsbcfg_write(PROGRAM, PATH_CONFIG, cfg);
-		break;
-	case GTK_RESPONSE_REJECT:
-		break;
+		p = gtk_entry_get_text(GTK_ENTRY(entry[SETTINGS_NCMDS]));
+		v = dsbcfg_list_to_strings(p, &error);
+		if (v == NULL && error) {
+			xwarnx(GTK_WINDOW(win), "%s", dsbcfg_strerror());
+			continue;
+		}
+		dsbcfg_setval(cfg, CFG_HIDE, DSBCFG_VAL(v));
+		create_icon_list();
+		dsbcfg_write(PROGRAM, PATH_CONFIG, cfg);
+		for (v = dsbcfg_getval(cfg, CFG_HIDE).strings;
+		    v != NULL && *v != NULL; v++) {
+			dp = lookupdrv_from_mnt(*v);
+			if (dp != NULL) {
+				del_icon(dp->dev);
+				(void)create_icontbl(mainwin.store);
+			}
+		}
+		(void)create_icontbl(mainwin.store);
+		if ((mainwin.win_state & GDK_WINDOW_STATE_ICONIFIED) ||
+		    (mainwin.win_state & GDK_WINDOW_STATE_WITHDRAWN)) {
+			gtk_widget_show_all(GTK_WIDGET(mainwin.win));
+			gtk_widget_hide(GTK_WIDGET(mainwin.win));
+		} else
+			gtk_widget_show_all(GTK_WIDGET(mainwin.win));
+		gtk_widget_destroy(win);
+		return;
 	}
 	gtk_widget_destroy(win);
 }
@@ -1006,6 +1068,10 @@ add_icon(drive_t *drvp)
 {
 	int i, j, k;
 
+	for (i = 0; i < nicons; i++) {
+		if (icons[i]->drvp == drvp)
+			return (NULL);
+	}
 	for (i = 0; i < NDSKTYPES; i++) {
 		if (disktypetbl[i].type == drvp->type)
 			break;
@@ -1323,6 +1389,23 @@ lookupdrv(const char *devname)
 			return (drives[i]);
 	}
 	return (NULL);
+}
+
+static drive_t *
+lookupdrv_from_mnt(const char *mnt)
+{
+	int i;
+
+	if (mnt == NULL)
+		return (NULL);
+	for (i = 0; i < ndrives; i++) {
+		if (drives[i]->mntpt == NULL)
+			continue;
+		if (strcmp(drives[i]->mntpt, mnt) == 0)
+			return (drives[i]);
+	}
+	return (NULL);
+
 }
 
 static gboolean
@@ -1766,7 +1849,7 @@ cb_open(GtkWidget *widget, gpointer data)
 		    icon->drvp->dev);
 		busywin(NULL, false);
 		busywin(BUSYWIN_MSG, true);
-	} else {
+	} else if (dsbcfg_getval(cfg, CFG_FILEMANAGER).string != NULL) {
 		exec_cmd(dsbcfg_getval(cfg, CFG_FILEMANAGER).string,
 		    icon->drvp);
 	}
@@ -1788,6 +1871,8 @@ process_open_reply(icon_t *icon)
 		set_mounted(icon, true);
 		add_bookmark(icon->drvp->mntpt);
 		cb_size(NULL, icon);
+		if (dsbcfg_getval(cfg, CFG_FILEMANAGER).string == NULL)
+			return;
 		exec_cmd(dsbcfg_getval(cfg, CFG_FILEMANAGER).string,
 		    icon->drvp);
 		return;
