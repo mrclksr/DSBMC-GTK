@@ -93,7 +93,7 @@ static struct parser_s {
 void
 dsbcfg_printerr()
 {
-	int i;
+	unsigned int i;
 
 	if (_error.errcode == -1)
 		return;
@@ -128,7 +128,7 @@ dsbcfg_printerr()
 const char *
 dsbcfg_strerror()
 {
-	int	    i;
+	unsigned int i;
 	static char strbuf[1024 + sizeof(_error.prfx)], *p;
 	
 	p = strbuf; *p = '\0';
@@ -317,8 +317,16 @@ dsbcfg_read(const char *subdir, const char *file, dsbcfg_vardef_t *vardefs,
 		if (parse_line(ln, vardefs, nvardefs, cp->vars) == -1)
 			goto error;
 	}
-	if (ln == NULL) { 
-		close_cfg_file(); return (cfg);
+	if (ln == NULL) {
+		if (cfg == NULL) {
+			/* Empty config file. */
+			if ((cfg = new_config_node(nvardefs)) == NULL)
+				goto error;
+			if (var_set_defaults(cfg->vars, vardefs,
+			    nvardefs) == -1)
+				return (NULL);
+		}
+ 		close_cfg_file(); return (cfg);
 	}
 	for (; ln != NULL; ln = readln()) {
 		if (is_label(ln)) {
@@ -355,6 +363,28 @@ dsbcfg_read(const char *subdir, const char *file, dsbcfg_vardef_t *vardefs,
 error:
 	dsbcfg_free(cfg); close_cfg_file();
 	return (NULL);
+}
+
+char **
+dsbcfg_list_to_strings(const char *str, bool *error)
+{
+	char *buf, *p, **v;
+
+	*error = false;
+	if (str == NULL)
+		return (NULL);
+	if ((buf = strdup(str)) == NULL) {
+		seterr(DSBCFG_ERR_SYS_ERROR, "strdup()");
+		return (NULL);
+	}
+	for (v = NULL, p = buf; (p = cutok(p, error)) != NULL; p = NULL) {
+		if (add_string(&v, p) == NULL) {
+			free(buf); free(v);
+			return (NULL);
+		}
+	}
+	free(buf);
+	return (*error ? NULL : v);
 }
 
 dsbcfg_t *
@@ -585,7 +615,8 @@ cutok(char *str, bool *error)
 		parser.needline = false;
 		parser.pbuf = start = strdup(str);
 		if (parser.pbuf == NULL) {
-			*error = true; seterr(DSBCFG_ERR_SYS_ERROR, "strdup()");
+			*error = true;
+			seterr(DSBCFG_ERR_SYS_ERROR, "strdup()");
 			return (NULL);
 		}		
 	} else if (parser.needline) {
@@ -792,9 +823,6 @@ parse_line(char *str, dsbcfg_vardef_t *vardefs, int nvardefs,
 		seterr(DSBCFG_ERR_MISSING_SEP, NULL); return (-1);
 	}
 	*val++ = '\0'; val += strspn(val, " \t\n");
-	if (*val == '\0' || isspace(*val)) {
-		seterr(DSBCFG_ERR_MISSING_VAL, NULL); return (-1);
-	}
 	for (i = 0; i < nvardefs; i++) {
 		if (strcmp(var, vardefs[i].name) != 0)
 			continue;
