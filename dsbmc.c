@@ -47,11 +47,6 @@
 #include "dsbcfg/dsbcfg.h"
 #include "gtk-helper/gtk-helper.h"
 
-#define GTK_HELPER_OK	  "_Ok"
-#define GTK_HELPER_NO	  "_No"
-#define GTK_HELPER_YES	  "_Yes"
-#define GTK_HELPER_CANCEL "_Cancel"
-
 #define PROGRAM		  "dsbmc"
 #define PATH_CONFIG	  "config"
 #define TITLE		  "DSBMC"
@@ -314,13 +309,11 @@ static struct pixbuftbl_s {
 	{ "SVCD",    ICON_SIZE_ICON, NULL, { "media-optical-cd",
 					     "drive-optical",	     NULL } },
 	{ "HDD",     ICON_SIZE_ICON, NULL, { "drive-harddisk",
-					     "harddrive",
-					     GTK_STOCK_HARDDISK,     NULL } },
+					     "harddrive",	     NULL } },
 	{ "MMC",     ICON_SIZE_ICON, NULL, { "media-flash-sd-mmc",
 					     "media-flash",	     NULL } },
 	{ "FLOPPY",  ICON_SIZE_ICON, NULL, { "media-floppy",	     NULL } },
-	{ "mounted", ICON_SIZE_ICON, NULL, { "folder",
-					     GTK_STOCK_DIRECTORY,    NULL } },
+	{ "mounted", ICON_SIZE_ICON, NULL, { "folder",		     NULL } },
 	{ "dvd",     ICON_SIZE_MENU, NULL, { "media-optical-dvd",
 					     "drive-optical",	     NULL } },
 	{ "cd",	     ICON_SIZE_MENU, NULL, { "media-optical-cd",
@@ -332,15 +325,11 @@ static struct pixbuftbl_s {
 	{ "svcd",    ICON_SIZE_MENU, NULL, { "media-optical-cd",
 					     "drive-optical",	     NULL } },
 	{ "eject",   ICON_SIZE_MENU, NULL, { "media-eject",	     NULL } },
-	{ "play",    ICON_SIZE_MENU, NULL, {  GTK_STOCK_MEDIA_PLAY, 
-					     "media-playback-start", NULL } },
-	{ "open",    ICON_SIZE_MENU, NULL, {  "document-open",
-					      GTK_STOCK_OPEN,	     NULL } },
-	{ "mount",   ICON_SIZE_MENU, NULL, {  "go-up",
-					      GTK_STOCK_GO_UP,	     NULL } },
-	{ "unmount", ICON_SIZE_MENU, NULL, {  "go-down",
-					      GTK_STOCK_GO_DOWN,     NULL } },
-	{ "hide",    ICON_SIZE_MENU, NULL, {  "list-remove", NULL } }
+	{ "play",    ICON_SIZE_MENU, NULL, { "media-playback-start", NULL } },
+	{ "open",    ICON_SIZE_MENU, NULL, { "document-open",	     NULL } },
+	{ "mount",   ICON_SIZE_MENU, NULL, { "go-up",		     NULL } },
+	{ "unmount", ICON_SIZE_MENU, NULL, { "go-down",		     NULL } },
+	{ "hide",    ICON_SIZE_MENU, NULL, { "list-remove",	     NULL } }
 };
 #define PIXBUFTBLSZ (sizeof(pixbuftbl) / sizeof(struct pixbuftbl_s))
 
@@ -706,7 +695,7 @@ create_mainwin()
 
 	if ((icon = load_icon(32, "drive-harddisk-usb",
 	    "drive-removable-media", "drive-harddisk", NULL)) == NULL) {
-		icon = load_icon(32, GTK_STOCK_MISSING_IMAGE, NULL);
+		icon = load_icon(32, "image-missing", NULL);
 	}
 	mainwin.win = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
 	gtk_window_set_default_size(mainwin.win, *mainwin.width,
@@ -720,15 +709,14 @@ create_mainwin()
 
 	/* Create the menu for the menu bar and the tray icon. */
 	menu  = gtk_menu_new();
-	image = gtk_image_new_from_stock(GTK_STOCK_PREFERENCES,
-	    GTK_ICON_SIZE_MENU);
+	image = gtk_image_new_from_icon_name("preferences-system", GTK_ICON_SIZE_MENU);
 	item  = gtk_image_menu_item_new_with_mnemonic(_("_Preferences"));
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	g_signal_connect(G_OBJECT(item), "activate",
 	    G_CALLBACK(settings_menu), NULL);
 
-	image = gtk_image_new_from_stock(GTK_STOCK_QUIT, GTK_ICON_SIZE_MENU);
+	image = gtk_image_new_from_icon_name("application-exit", GTK_ICON_SIZE_MENU);
 	item  = gtk_image_menu_item_new_with_mnemonic(_("_Quit"));
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
@@ -755,14 +743,19 @@ create_mainwin()
 	sw = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
 	    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(sw),
-	    mainwin.icon_view);
+	gtk_container_add(GTK_CONTAINER(sw), mainwin.icon_view);
 
 	mainwin.statusbar = gtk_statusbar_new();
+#if GTK_MAJOR_VERSION < 3
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(mainwin.statusbar),
 	    FALSE);
+#endif
 
+#if GTK_MAJOR_VERSION < 3
 	vbox = gtk_vbox_new(FALSE, 0);
+#else
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+#endif
 	gtk_box_pack_start(GTK_BOX(vbox), menu_bar, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), sw, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), mainwin.statusbar, FALSE, FALSE, 0);
@@ -775,7 +768,7 @@ create_mainwin()
 	    G_CALLBACK(tray_click), mainwin.win);
 	g_signal_connect(G_OBJECT(mainwin.tray_icon), "popup-menu",
 	    G_CALLBACK(popup_tray_ctxmenu), G_OBJECT(menu));
-	gtk_status_icon_set_tooltip(mainwin.tray_icon, "DSBMC");
+	gtk_status_icon_set_tooltip_text(mainwin.tray_icon, "DSBMC");
 	gtk_status_icon_set_visible(mainwin.tray_icon, TRUE);
 
 	g_signal_connect(mainwin.win, "delete-event",
@@ -862,19 +855,12 @@ settings_menu()
 	size_t	     len;
 	drive_t	     *dp;
 	const char   *p;
-	GdkPixbuf    *icon;
 	GtkWidget    *win, *abt, *cbt, *cb, *label, *table, *image;
 	GtkWidget    *entry[SETTINGS_NCMDS + 1];
-	GtkIconTheme *icon_theme;
 
 	win = gtk_dialog_new();
 	gtk_window_set_title(GTK_WINDOW(win), _("Preferences"));
-	icon_theme = gtk_icon_theme_get_default();
-	icon = gtk_icon_theme_load_icon(icon_theme, GTK_STOCK_PREFERENCES,
-	    16, 0, NULL);
-	if (icon != NULL)
-		gtk_window_set_icon(GTK_WINDOW(win), icon);
-	g_object_unref(icon);
+	gtk_window_set_icon_name(GTK_WINDOW(win), "preferences-system");
 	gtk_container_set_border_width(GTK_CONTAINER(win), 10);
 
 	table = gtk_table_new(SETTINGS_NCMDS + 1, 5, FALSE);
@@ -951,10 +937,10 @@ settings_menu()
 	gtk_table_attach(GTK_TABLE(table), label, 2, 3, i + 1, i + 2,
 	    GTK_FILL, 0, 0, 0);
 
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(win)->vbox), table,
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(win))), table,
 	    TRUE, TRUE, 0);
-	abt = new_button(_("_Ok"), GTK_STOCK_OK);
-	cbt = new_button(_("_Cancel"), GTK_STOCK_CANCEL);
+	abt = gtk_button_new_with_mnemonic(_("_Ok"));
+	cbt = gtk_button_new_with_mnemonic(_("_Cancel"));
 	gtk_dialog_add_action_widget(GTK_DIALOG(win), abt,
 	    GTK_RESPONSE_ACCEPT);
 	gtk_dialog_add_action_widget(GTK_DIALOG(win), cbt,
@@ -1198,8 +1184,12 @@ icon_clicked(GtkWidget *widget, GdkEvent *event, gpointer data)
 			gtk_widget_set_sensitive(
 			    icon->ctxmenu->menuitems[MENU_ITEM_MOUNT], TRUE);
 		}
+#if GTK_MAJOR_VERSION < 3
 		gtk_menu_popup(GTK_MENU(icon->ctxmenu->menu), NULL, NULL,
 		    NULL, NULL, bevent->button, bevent->time);
+#else
+		gtk_menu_popup_at_pointer(GTK_MENU(icon->ctxmenu->menu), event);
+#endif
 	} else if (event->type == GDK_BUTTON_PRESS && bevent->button == 1) {
 		/* Left mouse button pressed. */
 		path = gtk_icon_view_get_path_at_pos(GTK_ICON_VIEW(
@@ -1273,7 +1263,7 @@ load_pixbufs()
 		}
 		if (icon == NULL) {
 			icon = gtk_icon_theme_load_icon(icon_theme,
-			    GTK_STOCK_MISSING_IMAGE, pixbuftbl[i].iconsize,
+			    "missing-image", pixbuftbl[i].iconsize,
 			    ICON_LOOKUP_FLAGS, NULL);
 		}
 		pixbuftbl[i].icon = icon;
@@ -1321,7 +1311,11 @@ busywin(const char *msg, bool show)
 	spinner = gtk_spinner_new();
 	gtk_spinner_start(GTK_SPINNER(spinner));
 
+#if GTK_MAJOR_VERSION < 3
 	hbox = gtk_hbox_new(FALSE, 5);
+#else
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+#endif
 	gtk_box_pack_start(GTK_BOX(hbox), label, TRUE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(hbox), spinner, TRUE, FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(win), hbox);
@@ -1948,20 +1942,13 @@ cb_speed(GtkWidget *widget, gpointer data)
 {
 	icon_t	      *icon;
 	GtkWidget     *win, *label, *spin, *ok, *cancel;
-	GdkPixbuf     *pixbuf;
 	static int    speed = 0;
-	GtkIconTheme  *icon_theme;
 	GtkAdjustment *adj;
 
 	icon = (icon_t *)data;
 	win = gtk_dialog_new();
 	gtk_window_set_title(GTK_WINDOW(win), _("Set CDROM speed"));
-	icon_theme = gtk_icon_theme_get_default();
-	pixbuf = gtk_icon_theme_load_icon(icon_theme, GTK_STOCK_PREFERENCES,
-	    16, 0, NULL);
-	if (pixbuf != NULL)
-		gtk_window_set_icon(GTK_WINDOW(win), pixbuf);
-	g_object_unref(pixbuf);
+	gtk_window_set_icon_name(GTK_WINDOW(win), "preferences-system");
 	gtk_container_set_border_width(GTK_CONTAINER(win), 10);
 	adj   = GTK_ADJUSTMENT(gtk_adjustment_new((float)icon->drvp->speed,
 	    1, CDR_MAXSPEED, 1.0, 1.0, 0.0));
@@ -1969,12 +1956,12 @@ cb_speed(GtkWidget *widget, gpointer data)
 	label = new_pango_label(ALIGN_CENTER, ALIGN_CENTER,
 	    "<span font_weight=\"bold\">%s</span>",
 	    "Set max. CDROM reading speed\n");
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(win)->vbox), label,
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(win))), label,
 	    TRUE, TRUE, 0);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(win)->vbox), spin,
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(win))), spin,
 	    FALSE, TRUE, 0);
-	ok     = new_button(_("_Ok"), GTK_STOCK_OK);
-	cancel = new_button(_("_Cancel"), GTK_STOCK_CANCEL);
+	ok     = gtk_button_new_with_mnemonic(_("_Ok"));
+	cancel = gtk_button_new_with_mnemonic(_("_Cancel"));
 	gtk_dialog_add_action_widget(GTK_DIALOG(win), ok,
 	    GTK_RESPONSE_ACCEPT);
 	gtk_dialog_add_action_widget(GTK_DIALOG(win), cancel,

@@ -45,10 +45,8 @@ extern void	 xerr(GtkWindow *, int, const char *, ...);
 extern void	 xwarn(GtkWindow *, const char *, ...);
 extern void	 xerrx(GtkWindow *, int, const char *, ...);
 extern void	 xwarnx(GtkWindow *, const char *, ...);
-extern void	 infobox(GtkWindow *, const char *, const char *);
 extern char	 *gettext_wrapper(const char *);
 extern GtkWidget *new_label(float, float, const char *, ...);
-extern GtkWidget *new_button(const char *, const char *);
 extern GtkWidget *new_pango_label(float, float, const char *, ...);
 extern GdkPixbuf *load_icon(int, const char *, ...);
 
