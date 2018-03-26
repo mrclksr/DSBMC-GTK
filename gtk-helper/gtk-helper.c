@@ -78,7 +78,7 @@ infobox(GtkWindow *parent, const char *str, const GtkMessageType type)
 	dialog = gtk_message_dialog_new(parent,
                     GTK_DIALOG_DESTROY_WITH_PARENT, type,
                     GTK_BUTTONS_OK, "%s", str);
-	gtk_dialog_run(GTK_DIALOG (dialog));
+	gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
 }
 
@@ -193,60 +193,28 @@ yesnobox(GtkWindow *parent, const char *fmt, ...)
 {
 	char      *str;
 	va_list   ap;
-	GtkWidget *hbox, *dialog, *content, *ok, *cancel, *image, *label;
-	
-	gdk_threads_enter();
+	GtkWidget *dialog;
+
 	va_start(ap, fmt);
 	if ((str = g_strdup_vprintf(fmt, ap)) == NULL)
 		xerr(NULL, EXIT_FAILURE, "g_strdup_vprintf()");
 	(void)vsprintf(str, fmt, ap);
-	ok	= gtk_button_new_with_mnemonic("_Yes");
-#if GTK_MAJOR_VERSION < 3
-	hbox	= gtk_hbox_new(FALSE, 5);
-#else
-	hbox	= gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
-#endif
-	image	= gtk_image_new_from_icon_name("dialog-question",
-		      GTK_ICON_SIZE_DIALOG);
-	label	= new_pango_label(ALIGN_CENTER, ALIGN_CENTER, str);
-	dialog	= gtk_dialog_new();
-	cancel	= gtk_button_new_with_mnemonic("_No");
-	content	= gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-	g_free(str);
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
-	if (parent != NULL)
-		gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
-	else
-		gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
-	gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
-	gtk_container_set_border_width(GTK_CONTAINER(dialog), 5);
 
-	g_object_set(image, "halign", 0, "valign", ALIGN_CENTER, NULL);
-	gtk_container_add(GTK_CONTAINER(hbox), image);
+	dialog = gtk_message_dialog_new_with_markup(parent,
+                    GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_QUESTION,
+                    GTK_BUTTONS_YES_NO, NULL);
+	gtk_message_dialog_set_markup(GTK_MESSAGE_DIALOG(dialog), str);
 
-	gtk_container_add(GTK_CONTAINER(hbox), label);
-
-	gtk_container_add(GTK_CONTAINER(content), hbox);
-	
-	gtk_dialog_add_action_widget(GTK_DIALOG(dialog), ok,
-	    GTK_RESPONSE_ACCEPT);
-	gtk_dialog_add_action_widget(GTK_DIALOG(dialog), cancel,
-	    GTK_RESPONSE_REJECT);
-	gtk_widget_show_all(dialog);
-	
 	switch (gtk_dialog_run(GTK_DIALOG(dialog))) {
 	case GTK_RESPONSE_ACCEPT:
 		gtk_widget_destroy(dialog);
-		gdk_threads_leave();
 		return (1);
 	case GTK_RESPONSE_REJECT:
 		gtk_widget_destroy(dialog);
-		gdk_threads_leave();
 		return (0);
 	}
-	gtk_widget_destroy(dialog);
-	gdk_threads_leave();
 
+	gtk_widget_destroy(dialog);
 	return (-1);
 }
 

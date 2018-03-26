@@ -47,11 +47,6 @@
 #include "dsbcfg/dsbcfg.h"
 #include "gtk-helper/gtk-helper.h"
 
-#define GTK_HELPER_OK	  "_Ok"
-#define GTK_HELPER_NO	  "_No"
-#define GTK_HELPER_YES	  "_Yes"
-#define GTK_HELPER_CANCEL "_Cancel"
-
 #define PROGRAM		  "dsbmc"
 #define PATH_CONFIG	  "config"
 #define TITLE		  "DSBMC"
