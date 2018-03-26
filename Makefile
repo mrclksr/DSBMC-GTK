@@ -2,7 +2,9 @@ PROGRAM		     = dsbmc
 PREFIX	    	    ?= /usr/local
 BINDIR		     = ${PREFIX}/bin
 LOCALEDIR	     = ${PREFIX}/share/locale
-CFLAGS		    += -Wall `pkg-config gtk+-2.0 --cflags --libs`
+GTKVER		    ?= 2.0
+CFLAGS		    += -Wall `pkg-config gtk+-${GTKVER} --cflags --libs`
+CFLAGS		    += -Wno-deprecated-declarations
 CFLAGS		    += -DPROGRAM=\"${PROGRAM}\" -DPATH_LOCALE=\"${LOCALEDIR}\"
 TARGETS		     = ${PROGRAM}
 SOURCES		     = ${PROGRAM}.c gtk-helper/gtk-helper.c dsbcfg/dsbcfg.c
