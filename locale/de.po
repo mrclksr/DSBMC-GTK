@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dsbmc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-13 21:16+0100\n"
+"POT-Creation-Date: 2018-03-30 20:08+0200\n"
 "PO-Revision-Date: 2011-03-08 21:59+0100\n"
 "Last-Translator: Marcel Kaiser <mk@nic-nac-project.org>\n"
 "Language-Team: German\n"
@@ -17,133 +17,133 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: dsbmc.c:1939
+#: dsbmc.c:1933
 #, c-format
 msgid " %s\tDisk size: %.1f %s\tFree: %.1f %s"
 msgstr " %s\tKapazität: %.1f %s\tFrei: %.1f %s"
 
-#: dsbmc.c:942
+#: dsbmc.c:928
 msgid "Comma separated list of mount points to ignore"
 msgstr "Kommata-separierte Liste von zu ignorierenden Mount Points."
 
-#: dsbmc.c:1480 dsbmc.c:1493 dsbmc.c:1516
+#: dsbmc.c:1474 dsbmc.c:1487 dsbmc.c:1510
 msgid "Command string too long"
 msgstr "Befehlszeichenkette zu lang"
 
-#: dsbmc.c:1684
+#: dsbmc.c:1678
 #, c-format
 msgid "Couldn't create \"%s\""
 msgstr "Konnte \"%s\" nicht erstellen"
 
-#: dsbmc.c:675
+#: dsbmc.c:664
 #, c-format
 msgid "Couldn't execute command \"%s\""
 msgstr "Konnte \"%s\" nicht ausführen"
 
-#: dsbmc.c:1628 dsbmc.c:1668
+#: dsbmc.c:1622 dsbmc.c:1662
 msgid "Couldn't find you in the password file."
 msgstr "Konnte Sie nicht in der Passwortdatei finden."
 
-#: dsbmc.c:1675
+#: dsbmc.c:1669
 #, c-format
 msgid "Couldn't open \"%s\""
 msgstr "Konnte \"%s\" nicht öffnen"
 
-#: dsbmc.c:644 dsbmc.c:1611
+#: dsbmc.c:633 dsbmc.c:1605
 msgid "DSBMD just shut down."
 msgstr "DSBMD hat gerade seinen Dienst quittiert."
 
-#: dsbmc.c:2057
+#: dsbmc.c:2044
 #, c-format
 msgid "Ejecting failed with error code %d"
 msgstr "Auswerfen schlug mit Fehlercode %d fehl."
 
-#: dsbmc.c:2051
+#: dsbmc.c:2038
 msgid "Ejecting failed with the following error"
 msgstr "Auswerfen schlug mit folgendem Fehler fehl"
 
-#: dsbmc.c:682
+#: dsbmc.c:671
 #, c-format
 msgid "Failed to execute shell \"%s\""
 msgstr "Konnte die Shell \"%s\" nicht ausführen"
 
-#: dsbmc.c:1364 dsbmc.c:1376
+#: dsbmc.c:1358 dsbmc.c:1370
 msgid "Lost connection to DSBMD"
 msgstr "Verbindung zu DSBMD verloren"
 
-#: dsbmc.c:1468
+#: dsbmc.c:1462
 msgid "Maximal number of processes reached"
 msgstr "Maximale Anzahl von Prozessen erreicht"
 
-#: dsbmc.c:916
+#: dsbmc.c:902
 msgid "Mount points to ignore:"
 msgstr "Ignoriere Mount Points:"
 
-#: dsbmc.c:1766 dsbmc.c:1889
+#: dsbmc.c:1760 dsbmc.c:1883
 #, c-format
 msgid "Mounting failed with error code %d"
 msgstr "Einhängen schlug mit Fehlercode %d fehl"
 
-#: dsbmc.c:1762 dsbmc.c:1883
+#: dsbmc.c:1756 dsbmc.c:1877
 msgid "Mounting failed with the following error"
 msgstr "Einhängen schlug mit folgendem Fehler fehl"
 
-#: dsbmc.c:90
+#: dsbmc.c:85
 msgid "Please wait ... "
 msgstr "Bitte warten ... "
 
-#: dsbmc.c:871
+#: dsbmc.c:862
 msgid "Preferences"
 msgstr "Einstellungen"
 
-#: dsbmc.c:1958
+#: dsbmc.c:1950
 msgid "Set CDROM speed"
 msgstr "Setze CDROM-Geschwindigkeit"
 
-#: dsbmc.c:2012
+#: dsbmc.c:1999
 #, c-format
 msgid "Setting speed failed with error code %d"
 msgstr "Setzen der Geschwindigkeit schlug mit Fehlercode %d fehl."
 
-#: dsbmc.c:2006
+#: dsbmc.c:1993
 msgid "Setting speed failed with the following error"
 msgstr "Setzen der Geschwindigkeit schlug mit folgendem Fehler fehl"
 
-#: dsbmc.c:1504
+#: dsbmc.c:1498
 #, c-format
 msgid "Unknown field code '%%%c'"
 msgstr "Ungültiger Platzhalter '%%%c'"
 
-#: dsbmc.c:1826
+#: dsbmc.c:1820
 #, c-format
 msgid "Unmounting failed with error code %d"
 msgstr "Aushängen mit Fehlercode %d gescheitert"
 
-#: dsbmc.c:1819
+#: dsbmc.c:1813
 msgid "Unmounting failed with the following error"
 msgstr "Aushängen mit folgendem Fehler gescheitert"
 
-#: dsbmc.c:642
+#: dsbmc.c:631
 msgid "You are not allowed to connect to DSBMD"
 msgstr "Sie haben keine Berechtigung, sich mit DSBMD zu verbinden"
 
-#: dsbmc.c:957 dsbmc.c:1977
+#: dsbmc.c:943 dsbmc.c:1964
 msgid "_Cancel"
 msgstr "_Abbrechen"
 
-#: dsbmc.c:737
+#: dsbmc.c:725
 msgid "_File"
 msgstr "_Datei"
 
-#: dsbmc.c:956 dsbmc.c:1976
+#: dsbmc.c:942 dsbmc.c:1963
 msgid "_Ok"
 msgstr "_Ok"
 
-#: dsbmc.c:725
+#: dsbmc.c:713
 msgid "_Preferences"
 msgstr "_Einstellungen"
 
-#: dsbmc.c:732
+#: dsbmc.c:720
 msgid "_Quit"
 msgstr "_Beenden"
 
@@ -210,7 +210,7 @@ msgid "Play VCDs with: "
 msgstr "Spiele VCDs mit: "
 
 msgid ""
- "The device is busy. Try to terminate all applications which are currently "
+"The device is busy. Try to terminate all applications which are currently "
 "accessing the device or files on the mounted filesystem.\n"
 "\n"
 "<span font_weight=\"bold\">Shall I force ejecting the media?</span>"
