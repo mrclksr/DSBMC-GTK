@@ -206,14 +206,15 @@ yesnobox(GtkWindow *parent, const char *fmt, ...)
 	gtk_message_dialog_set_markup(GTK_MESSAGE_DIALOG(dialog), str);
 
 	switch (gtk_dialog_run(GTK_DIALOG(dialog))) {
+	case GTK_RESPONSE_YES:
 	case GTK_RESPONSE_ACCEPT:
 		gtk_widget_destroy(dialog);
 		return (1);
+	case GTK_RESPONSE_NO:
 	case GTK_RESPONSE_REJECT:
 		gtk_widget_destroy(dialog);
 		return (0);
 	}
-
 	gtk_widget_destroy(dialog);
 	return (-1);
 }
