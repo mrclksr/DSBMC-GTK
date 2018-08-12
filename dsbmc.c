@@ -52,7 +52,7 @@
 #define TITLE		  "DSBMC"
 #define PATH_BOOKMARK	  ".gtk-bookmarks"
 #define PATH_DSBMD_SOCKET  "/var/run/dsbmd.socket"
-
+#define PATH_LOCK	   ".dsbmc.lock"
 #define CMDQSZ		  16
 
 #define LABEL_WIDTH	  16
@@ -90,6 +90,7 @@ typedef struct ctxmenu_s ctxmenu_t;
 
 static int	  process_event(char *);
 static int	  parse_dsbmdevent(char *);
+static int	  create_mddev(const char *);
 static char	  *readln(bool);
 static FILE	  *uconnect(const char *);
 static void	  usage(void);
@@ -539,11 +540,13 @@ sndcmd(void (*re)(icon_t *), icon_t *icon, const char *cmd, ...)
 int
 main(int argc, char *argv[])
 {
-	int	   ch, i;
-	gint	   iotag;
-	char	   *p, *path;
-	sigset_t   sigmask;
-        GIOChannel *ioc;
+	int	      ch, i;
+	gint	      iotag;
+	FILE	      *fp;
+	char	      *p, *path, path_lock[PATH_MAX];
+	sigset_t      sigmask;
+	GIOChannel    *ioc;
+	struct passwd *pw;
 
 #ifdef WITH_GETTEXT
 	(void)setlocale(LC_ALL, "");
@@ -567,14 +570,33 @@ main(int argc, char *argv[])
 	argc -= optind;
 	argv += optind;
 
-
-        cfg = dsbcfg_read(PROGRAM, PATH_CONFIG, vardefs, CFG_NVARS);
-        if (cfg == NULL && errno == ENOENT) {
-                cfg = dsbcfg_new(NULL, vardefs, CFG_NVARS);
-                if (cfg == NULL)
-                        xerrx(NULL, EXIT_FAILURE, "%s", dsbcfg_strerror());
-        } else if (cfg == NULL)
-                xerrx(NULL, EXIT_FAILURE, "%s", dsbcfg_strerror());
+	if ((pw = getpwuid(getuid())) == NULL)
+		xerr(NULL, EXIT_FAILURE, "getpwuid()");
+        /* Check if another instance is already running. */
+	(void)snprintf(path_lock, sizeof(path_lock), "%s/%s", pw->pw_dir,
+	    PATH_LOCK);
+	endpwent();
+	if ((fp = fopen(path_lock, "r+")) == NULL) {
+		if (errno != ENOENT || (fp = fopen(path_lock, "w+")) == NULL)
+			xerr(NULL, EXIT_FAILURE, "fopen(%s)", path_lock);
+	}
+	if (lockf(fileno(fp), F_TLOCK, 0) == -1) {
+		if (errno == EWOULDBLOCK) {
+			while (argc--)
+				(void)create_mddev(argv[argc]);
+			exit(EXIT_SUCCESS);
+		}
+		xerr(NULL, EXIT_FAILURE, "lockf()");
+	}
+	while (argc--)
+		(void)create_mddev(argv[argc]);
+	cfg = dsbcfg_read(PROGRAM, PATH_CONFIG, vardefs, CFG_NVARS);
+	if (cfg == NULL && errno == ENOENT) {
+		cfg = dsbcfg_new(NULL, vardefs, CFG_NVARS);
+		if (cfg == NULL)
+			xerrx(NULL, EXIT_FAILURE, "%s", dsbcfg_strerror());
+	} else if (cfg == NULL)
+		xerrx(NULL, EXIT_FAILURE, "%s", dsbcfg_strerror());
 
 	mainwin.posx   = &dsbcfg_getval(cfg, CFG_POS_X).integer;
 	mainwin.posy   = &dsbcfg_getval(cfg, CFG_POS_Y).integer;
@@ -682,7 +704,7 @@ main(int argc, char *argv[])
 static void
 usage()
 {
-	(void)printf("Usage: %s [-ih]\n" \
+	(void)printf("Usage: %s [-ih] [image ...]\n" \
 		     "   -i: Start %s as tray icon\n", PROGRAM, PROGRAM);
 	exit(EXIT_FAILURE);
 }
@@ -2228,6 +2250,32 @@ parse_dsbmdevent(char *str)
 		}
 	}
 	return (0);
+}
+
+static int
+create_mddev(const char *image)
+{
+	int  error;
+	char *cmd;
+
+	cmd = malloc(strlen("mdconfig -f ") + strlen(image) + 10);
+	if (cmd == NULL)
+		xerr(NULL, EXIT_FAILURE, "malloc()");
+	(void)sprintf(cmd, "mdconfig -f %s", image);
+	switch ((error = system(cmd))) {
+	case  0:
+		break;
+	case -1:
+		xerr(NULL, EXIT_FAILURE, "system(%s)", cmd);
+	case 127:
+		xerrx(NULL, EXIT_FAILURE, "system(): failed to execute shell");
+	default:
+		xwarnx(NULL, "Command '%s' returned with exit code %d",
+		    cmd, error);
+	}
+	free(cmd);
+
+	return (error);
 }
 
 static FILE *
