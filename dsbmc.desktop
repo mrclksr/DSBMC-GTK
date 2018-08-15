@@ -6,4 +6,5 @@ Terminal=false
 StartupNotify=false
 Type=Application
 Categories=System;Application
+MimeType=application/x-cd-image;application/x-raw-disk-image;
 
