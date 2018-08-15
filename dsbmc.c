@@ -704,7 +704,7 @@ main(int argc, char *argv[])
 static void
 usage()
 {
-	(void)printf("Usage: %s [-ih] [image ...]\n" \
+	(void)printf("Usage: %s [-ih] [<disk image> ...]\n" \
 		     "   -i: Start %s as tray icon\n", PROGRAM, PROGRAM);
 	exit(EXIT_FAILURE);
 }
