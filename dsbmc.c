@@ -590,6 +590,9 @@ main(int argc, char *argv[])
 	}
 	while (argc--)
 		(void)create_mddev(argv[argc]);
+	if (sock != NULL)
+		(void)fclose(sock);
+
 	cfg = dsbcfg_read(PROGRAM, PATH_CONFIG, vardefs, CFG_NVARS);
 	if (cfg == NULL && errno == ENOENT) {
 		cfg = dsbcfg_new(NULL, vardefs, CFG_NVARS);
@@ -627,11 +630,7 @@ main(int argc, char *argv[])
 	    &dsbcfg_getval(cfg, CFG_PLAY_CDDA).string;
 	settingsmenu.ignore_list =
 	    &dsbcfg_getval(cfg, CFG_HIDE).strings;
-
-	if (argc > 0)
-		path = argv[0];
-	else
-		path = PATH_DSBMD_SOCKET;
+	path = PATH_DSBMD_SOCKET;
 	for (i = 0; i < 10 && (sock = uconnect(path)) == NULL; i++) {
 		if (errno == EINTR || errno == ECONNREFUSED)
 			(void)sleep(1);
@@ -640,6 +639,7 @@ main(int argc, char *argv[])
 	}
 	if (i == 10)
 		xerr(NULL, EXIT_FAILURE, "Couldn't connect to DSBMD");
+
 	/* Get the drive list from dsbmd. */
 	for (ndrives = 0, p = readln(true); p[0] != '='; p = readln(true)) {
 		if (parse_dsbmdevent(p) == -1)
@@ -2255,27 +2255,63 @@ parse_dsbmdevent(char *str)
 static int
 create_mddev(const char *image)
 {
-	int  error;
-	char *cmd;
+	int  i;
+	char *path, *cmd, *p;
 
-	cmd = malloc(strlen("mdconfig -f ") + strlen(image) + 10);
-	if (cmd == NULL)
+	if (sock == NULL) {
+		for (i = 0; i < 10 &&
+		    (sock = uconnect(PATH_DSBMD_SOCKET)) == NULL; i++) {
+			if (errno == EINTR || errno == ECONNREFUSED)
+				(void)sleep(1);
+			else {
+				xerr(NULL, EXIT_FAILURE,
+				    "Couldn't connect to DSBMD");
+			}
+		}
+		if (i == 10)
+			xerr(NULL, EXIT_FAILURE, "Couldn't connect to DSBMD");
+		for (p = readln(true); p[0] != '='; p = readln(true)) {
+			if (parse_dsbmdevent(p) == -1)
+				continue;
+			if (dsbmdevent.type == EVENT_ERROR_MSG &&
+			    dsbmdevent.code != ERR_PERMISSION_DENIED) {
+				xerrx(NULL, EXIT_FAILURE,
+				  _("You are not allowed to connect to DSBMD"));
+			} else if (dsbmdevent.type == EVENT_SHUTDOWN) {
+				xerrx(NULL, EXIT_FAILURE,
+				    _("DSBMD just shut down."));
+			}
+		}
+	}
+	if ((path = realpath(image, NULL)) == NULL)
+		xwarn(NULL, "realpath(%s)", image);
+	if ((cmd = malloc(strlen(path) + strlen("mdattach ") + 2)) == NULL)
 		xerr(NULL, EXIT_FAILURE, "malloc()");
-	(void)sprintf(cmd, "mdconfig -f %s", image);
-	switch ((error = system(cmd))) {
-	case  0:
-		break;
-	case -1:
-		xerr(NULL, EXIT_FAILURE, "system(%s)", cmd);
-	case 127:
-		xerrx(NULL, EXIT_FAILURE, "system(): failed to execute shell");
-	default:
-		xwarnx(NULL, "Command '%s' returned with exit code %d",
-		    cmd, error);
+	(void)sprintf(cmd, "mdattach %s\n", path);
+
+	errno = 0;
+	while (fputs(cmd, sock) == EOF) {
+		if (errno == EINTR)
+			continue;
+		xerr(NULL, EXIT_FAILURE, "fputs()");
 	}
 	free(cmd);
 
-	return (error);
+	while ((p = readln(true)) != NULL) {
+		if (parse_dsbmdevent(p) != 0)
+			continue;
+		if (dsbmdevent.type == EVENT_ERROR_MSG) {
+			xwarnx(NULL, "Couldn't create memory disk from " \
+			    "'%s': Error code %d", path, dsbmdevent.code);
+			free(path);
+			return (-1);
+		}
+		if (dsbmdevent.type == EVENT_SUCCESS_MSG) {
+			free(path);
+			return (0);
+		}
+	}
+	return (-1);
 }
 
 static FILE *
