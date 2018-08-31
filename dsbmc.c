@@ -1364,6 +1364,8 @@ errmsg(int error)
 		if (errorcodes[i].error == error)
 			return (errorcodes[i].msg);
 	}
+	if (error < (1 << 8))
+		return (strerror(error));
 	return (NULL);
 }
 
