@@ -2259,6 +2259,7 @@ create_mddev(const char *image)
 {
 	int  i;
 	char *path, *cmd, *p;
+	const char *errstr;
 
 	if (sock == NULL) {
 		for (i = 0; i < 10 &&
@@ -2303,8 +2304,10 @@ create_mddev(const char *image)
 		if (parse_dsbmdevent(p) != 0)
 			continue;
 		if (dsbmdevent.type == EVENT_ERROR_MSG) {
+			errstr = errmsg(dsbmdevent.code);
 			xwarnx(NULL, "Couldn't create memory disk from " \
-			    "'%s': Error code %d", path, dsbmdevent.code);
+			    "'%s': Error code %d: %s", path, dsbmdevent.code,
+			    errstr == NULL ? "" : errstr);
 			free(path);
 			return (-1);
 		}
