@@ -201,6 +201,11 @@ struct dsbmdevent_s {
 #define ERR_UNKNOWN_FILESYSTEM  ((1 << 8) + 0x0c)
 #define ERR_UNKNOWN_ERROR       ((1 << 8) + 0x0d)
 #define ERR_MNTCMD_FAILED       ((1 << 8) + 0x0e)
+#define ERR_INVALID_ARGUMENT	((1 << 8) + 0x0f)
+#define ERR_STRING_TOO_LONG	((1 << 8) + 0x10)
+#define ERR_BAD_STRING		((1 << 8) + 0x11)
+#define ERR_TIMEOUT		((1 << 8) + 0x12)
+#define ERR_NOT_A_FILE		((1 << 8) + 0x13)
 	drive_t drvinfo;	/* For Add/delete/mount/unmount message. */
 } dsbmdevent;
 
@@ -265,7 +270,11 @@ static struct error_s {
 	{ ERR_NO_MEDIA,		  "No media in drive"			  },
 	{ ERR_UNKNOWN_FILESYSTEM, "Unknown filesystem"			  },
 	{ ERR_UNKNOWN_ERROR,	  "Unknown error"			  },
-	{ ERR_MNTCMD_FAILED,	  "Mouting failed"			  }
+	{ ERR_MNTCMD_FAILED,	  "Mouting failed"			  },
+	{ ERR_STRING_TOO_LONG,	  "Command string too long"		  },
+	{ ERR_BAD_STRING,	  "Invalid command string"		  },
+	{ ERR_TIMEOUT,	  	  "Timeout"				  },
+	{ ERR_NOT_A_FILE,	  "Not a regular file"			  }
 };
 #define NERRCODES (sizeof(errorcodes) / sizeof(struct error_s))
 
