@@ -2276,7 +2276,7 @@ create_mddev(const char *image)
 			if (parse_dsbmdevent(p) == -1)
 				continue;
 			if (dsbmdevent.type == EVENT_ERROR_MSG &&
-			    dsbmdevent.code != ERR_PERMISSION_DENIED) {
+			    dsbmdevent.code == ERR_PERMISSION_DENIED) {
 				xerrx(NULL, EXIT_FAILURE,
 				  _("You are not allowed to connect to DSBMD"));
 			} else if (dsbmdevent.type == EVENT_SHUTDOWN) {
