@@ -2299,10 +2299,9 @@ create_mddev(const char *image)
 	}
 	if ((path = realpath(image, NULL)) == NULL)
 		xwarn(NULL, "realpath(%s)", image);
-	if ((cmd = malloc(strlen(path) + strlen("mdattach ") + 2)) == NULL)
+	if ((cmd = malloc(strlen(path) + strlen("mdattach ") + 8)) == NULL)
 		xerr(NULL, EXIT_FAILURE, "malloc()");
-	(void)sprintf(cmd, "mdattach %s\n", path);
-
+	(void)sprintf(cmd, "mdattach \"%s\"\n", path);
 	errno = 0;
 	while (fputs(cmd, sock) == EOF) {
 		if (errno == EINTR)
