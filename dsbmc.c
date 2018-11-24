@@ -1616,6 +1616,8 @@ process_event(char *buf)
 		del_icon(dsbmdevent.drvinfo.dev);
 		del_drive(dsbmdevent.drvinfo.dev);
 		(void)create_icontbl(mainwin.store);
+		if (nicons == 0)
+			hide_win(GTK_WIDGET(mainwin.win));
 	} else if (dsbmdevent.type == EVENT_MOUNT) {
 		if ((drvp = lookupdrv(dsbmdevent.drvinfo.dev)) == NULL)
 			return (dsbmdevent.type);
