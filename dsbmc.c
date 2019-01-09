@@ -47,39 +47,39 @@
 #include "dsbcfg/dsbcfg.h"
 #include "gtk-helper/gtk-helper.h"
 
-#define PROGRAM			  "dsbmc"
-#define PATH_CONFIG		  "config"
-#define TITLE			  "DSBMC"
+#define PROGRAM		  "dsbmc"
+#define PATH_CONFIG	  "config"
+#define TITLE		  "DSBMC"
 #define PATH_BOOKMARK	  ".gtk-bookmarks"
 #define PATH_DSBMD_SOCKET "/var/run/dsbmd.socket"
-#define PATH_LOCK		  ".dsbmc.lock"
-#define CMDQSZ			  16
+#define PATH_LOCK	  ".dsbmc.lock"
+#define CMDQSZ		  16
 
-#define LABEL_WIDTH		  16
+#define LABEL_WIDTH	  16
 #define CDR_MAXSPEED	  52
 #define ICON_LOOKUP_FLAGS \
 	(GTK_ICON_LOOKUP_USE_BUILTIN | GTK_ICON_LOOKUP_GENERIC_FALLBACK)
 
-#define MARKUP_BOLD		  "<span font_weight=\"bold\" "					\
-						  "underline=\"single\">%s</span>"
+#define MARKUP_BOLD	  "<span font_weight=\"bold\" "			   \
+			  "underline=\"single\">%s</span>"
 #define MARKUP_NORMAL	  "<span font_weight=\"normal\">%s</span>"
 
-#define EJECT_BUSY_MSG \
-	"The device is busy. Try to terminate all applications which are "	\
-	"currently accessing the device or files on the mounted "			\
-	"filesystem.\n\n<span font_weight=\"bold\">Shall I force "			\
+#define EJECT_BUSY_MSG							   \
+	"The device is busy. Try to terminate all applications which are " \
+	"currently accessing the device or files on the mounted "	   \
+	"filesystem.\n\n<span font_weight=\"bold\">Shall I force "	   \
 	"ejecting the media?</span>"
 
-#define UNMOUNT_BUSY_MSG \
-	"The device is busy. Try to terminate all applications which are "	\
-	"currently accessing the device or files on the mounted "			\
-	"filesystem.\n\n<span font_weight=\"bold\">Shall I force "			\
+#define UNMOUNT_BUSY_MSG						   \
+	"The device is busy. Try to terminate all applications which are " \
+	"currently accessing the device or files on the mounted "	   \
+	"filesystem.\n\n<span font_weight=\"bold\">Shall I force "	   \
 	"unmounting the device?</span>"
 
-#define SETTINGS_MENU_INFO_MSG											\
-	"<span font=\"monospace\" font_weight=\"bold\">%%d</span> "			\
-	"will be replaced by the device name.\n"							\
-	"<span font=\"monospace\" font_weight=\"bold\">%%m</span> "			\
+#define SETTINGS_MENU_INFO_MSG						   \
+	"<span font=\"monospace\" font_weight=\"bold\">%%d</span> "	   \
+	"will be replaced by the device name.\n"			   \
+	"<span font=\"monospace\" font_weight=\"bold\">%%m</span> "	   \
 	"will be replaced by the mount point."
 
 #define BUSYWIN_MSG _("Please wait ... ")
@@ -145,25 +145,25 @@ struct drive_s {
 #define DRVCMD_MOUNT	(1 << 0x00)
 #define DRVCMD_UNMOUNT	(1 << 0x01)
 #define DRVCMD_EJECT	(1 << 0x02)
-#define DRVCMD_PLAY		(1 << 0x03)
-#define DRVCMD_OPEN		(1 << 0x04)
+#define DRVCMD_PLAY	(1 << 0x03)
+#define DRVCMD_OPEN	(1 << 0x04)
 #define DRVCMD_SPEED	(1 << 0x05)
-#define DRVCMD_HIDE		(1 << 0x06)
+#define DRVCMD_HIDE	(1 << 0x06)
 	char  type;
-#define DSKTYPE_HDD		0x01
+#define DSKTYPE_HDD	0x01
 #define DSKTYPE_USBDISK	0x02
 #define DSKTYPE_DATACD	0x03
 #define	DSKTYPE_AUDIOCD	0x04
 #define	DSKTYPE_RAWCD	0x05
-#define	DSKTYPE_DVD		0x06
-#define	DSKTYPE_VCD		0x07
+#define	DSKTYPE_DVD	0x06
+#define	DSKTYPE_VCD	0x07
 #define	DSKTYPE_SVCD	0x08
 #define	DSKTYPE_FLOPPY	0x09
-#define DSKTYPE_MMC		0x0a
-#define DSKTYPE_PTP		0x0b
-#define DSKTYPE_MTP		0x0c
+#define DSKTYPE_MMC	0x0a
+#define DSKTYPE_PTP	0x0b
+#define DSKTYPE_MTP	0x0c
 	int   speed;
-	char  *dev;			/* Device name */
+	char  *dev;		/* Device name */
 	char  *volid;		/* Volume ID */
 	char  *mntpt;		/* Mount point */
 	char  *fsname;		/* Filesystem name */
@@ -175,15 +175,15 @@ struct dsbmdevent_s {
 #define EVENT_SUCCESS_MSG 'O'
 #define EVENT_WARNING_MSG 'W'
 #define EVENT_ERROR_MSG	  'E'
-#define EVENT_MOUNT	 	  'M'
+#define EVENT_MOUNT	  'M'
 #define EVENT_UNMOUNT	  'U'
 #define EVENT_SHUTDOWN	  'S'
-#define EVENT_SPEED		  'V'
+#define EVENT_SPEED	  'V'
 #define EVENT_ADD_DEVICE  '+'
 #define EVENT_DEL_DEVICE  '-'
-	char *command;		/* In case of a reply, the executed command. */
-	int	 mntcmderr;		/* Return code of external mount command. */
-	int	 code;			/* The error code */
+	char	 *command;	/* In case of a reply, the executed command. */
+	int	 mntcmderr;	/* Return code of external mount command. */
+	int	 code;		/* The error code */
 	uint64_t mediasize;	/* For "size" command. */
 	uint64_t free;		/* 	 ""	       */
 	uint64_t used;		/* 	 ""	       */
@@ -202,10 +202,10 @@ struct dsbmdevent_s {
 #define ERR_UNKNOWN_ERROR       ((1 << 8) + 0x0d)
 #define ERR_MNTCMD_FAILED       ((1 << 8) + 0x0e)
 #define ERR_INVALID_ARGUMENT	((1 << 8) + 0x0f)
-#define ERR_STRING_TOO_LONG		((1 << 8) + 0x10)
-#define ERR_BAD_STRING			((1 << 8) + 0x11)
-#define ERR_TIMEOUT				((1 << 8) + 0x12)
-#define ERR_NOT_A_FILE			((1 << 8) + 0x13)
+#define ERR_STRING_TOO_LONG	((1 << 8) + 0x10)
+#define ERR_BAD_STRING		((1 << 8) + 0x11)
+#define ERR_TIMEOUT		((1 << 8) + 0x12)
+#define ERR_NOT_A_FILE		((1 << 8) + 0x13)
 	drive_t drvinfo;	/* For Add/delete/mount/unmount message. */
 } dsbmdevent;
 
@@ -226,27 +226,27 @@ struct dsbmdkeyword_s {
 		uint64_t *uint64;
 	} val;
 } dsbmdkeywords[] = {
-	{ "+",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type		      },
-	{ "-",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type		      },
-	{ "O",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type		      },
-	{ "E",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type		      },
-	{ "M",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type		      },
-	{ "U",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type		      },
-	{ "V",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type		      },
-	{ "S",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type		      },
-	{ "command=",	KWTYPE_STRING,	 (val_t)&dsbmdevent.command	      },
-	{ "dev=",	KWTYPE_STRING,	 (val_t)&dsbmdevent.drvinfo.dev       },
-	{ "fs=",	KWTYPE_STRING,	 (val_t)&dsbmdevent.drvinfo.fsname    },
-	{ "volid=",	KWTYPE_STRING,	 (val_t)&dsbmdevent.drvinfo.volid     },
-	{ "mntpt=",	KWTYPE_STRING,	 (val_t)&dsbmdevent.drvinfo.mntpt     },
-	{ "type=",	KWTYPE_DSKTYPE,	 (val_t)&dsbmdevent.drvinfo.type      },
-	{ "speed=",	KWTYPE_INTEGER,	 (val_t)&dsbmdevent.drvinfo.speed     },
-	{ "code=",	KWTYPE_INTEGER,	 (val_t)&dsbmdevent.code		      },
-	{ "cmds=",	KWTYPE_COMMANDS, (val_t)(char *)0				      },
-	{ "mntcmderr=",	KWTYPE_INTEGER,	 (val_t)&dsbmdevent.mntcmderr     },
-	{ "mediasize=", KWTYPE_UINT64,	 (val_t)&dsbmdevent.mediasize	  },
-	{ "used=",	KWTYPE_UINT64,	 (val_t)&dsbmdevent.used		   	  },
-	{ "free=",	KWTYPE_UINT64,	 (val_t)&dsbmdevent.free	 	      }
+	{ "+",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
+	{ "-",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
+	{ "O",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
+	{ "E",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
+	{ "M",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
+	{ "U",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
+	{ "V",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
+	{ "S",		KWTYPE_CHAR,	 (val_t)&dsbmdevent.type	   },
+	{ "command=",	KWTYPE_STRING,	 (val_t)&dsbmdevent.command	   },
+	{ "dev=",	KWTYPE_STRING,	 (val_t)&dsbmdevent.drvinfo.dev    },
+	{ "fs=",	KWTYPE_STRING,	 (val_t)&dsbmdevent.drvinfo.fsname },
+	{ "volid=",	KWTYPE_STRING,	 (val_t)&dsbmdevent.drvinfo.volid  },
+	{ "mntpt=",	KWTYPE_STRING,	 (val_t)&dsbmdevent.drvinfo.mntpt  },
+	{ "type=",	KWTYPE_DSKTYPE,	 (val_t)&dsbmdevent.drvinfo.type   },
+	{ "speed=",	KWTYPE_INTEGER,	 (val_t)&dsbmdevent.drvinfo.speed  },
+	{ "code=",	KWTYPE_INTEGER,	 (val_t)&dsbmdevent.code	   },
+	{ "cmds=",	KWTYPE_COMMANDS, (val_t)(char *)0		   },
+	{ "mntcmderr=",	KWTYPE_INTEGER,	 (val_t)&dsbmdevent.mntcmderr	   },
+	{ "mediasize=", KWTYPE_UINT64,	 (val_t)&dsbmdevent.mediasize	   },
+	{ "used=",	KWTYPE_UINT64,	 (val_t)&dsbmdevent.used	   },
+	{ "free=",	KWTYPE_UINT64,	 (val_t)&dsbmdevent.free	   }
 };
 #define NKEYWORDS (sizeof(dsbmdkeywords) / sizeof(struct dsbmdkeyword_s))
 
@@ -257,24 +257,24 @@ static struct error_s {
 	int	   error;
 	const char *msg;
 } errorcodes[] = {
-	{ ERR_ALREADY_MOUNTED,	  "Device already mounted"				  },
-	{ ERR_PERMISSION_DENIED,  "Permission denied"					  },
-	{ ERR_NOT_MOUNTED,		  "Device not mounted"					  },
-	{ ERR_DEVICE_BUSY,		  "Device busy"							  },
-	{ ERR_NO_SUCH_DEVICE,	  "No such device"						  },
-	{ ERR_MAX_CONN_REACHED,   "Maximal number of connections reached" },
-	{ ERR_NOT_EJECTABLE,	  "Media not ejectable"					  },
-	{ ERR_UNKNOWN_COMMAND,	  "Unknow command"						  },
-	{ ERR_UNKNOWN_OPTION,	  "Unknow option"						  },
-	{ ERR_SYNTAX_ERROR,	 	  "Syntax error"						  },
-	{ ERR_NO_MEDIA,		 	  "No media in drive"					  },
-	{ ERR_UNKNOWN_FILESYSTEM, "Unknown filesystem"					  },
-	{ ERR_UNKNOWN_ERROR,	  "Unknown error"						  },
-	{ ERR_MNTCMD_FAILED,	  "Mouting failed"						  },
-	{ ERR_STRING_TOO_LONG,	  "Command string too long"				  },
-	{ ERR_BAD_STRING,	 	  "Invalid command string"				  },
-	{ ERR_TIMEOUT,		  	  "Timeout"								  },
-	{ ERR_NOT_A_FILE,		  "Not a regular file"					  }
+	{ ERR_ALREADY_MOUNTED,	  "Device already mounted"		   },
+	{ ERR_PERMISSION_DENIED,  "Permission denied"			   },
+	{ ERR_NOT_MOUNTED,	  "Device not mounted"			   },
+	{ ERR_DEVICE_BUSY,	  "Device busy"				   },
+	{ ERR_NO_SUCH_DEVICE,	  "No such device"			   },
+	{ ERR_MAX_CONN_REACHED,   "Maximal number of connections reached"  },
+	{ ERR_NOT_EJECTABLE,	  "Media not ejectable"			   },
+	{ ERR_UNKNOWN_COMMAND,	  "Unknow command"			   },
+	{ ERR_UNKNOWN_OPTION,	  "Unknow option"			   },
+	{ ERR_SYNTAX_ERROR,	  "Syntax error"			   },
+	{ ERR_NO_MEDIA,		  "No media in drive"			   },
+	{ ERR_UNKNOWN_FILESYSTEM, "Unknown filesystem"			   },
+	{ ERR_UNKNOWN_ERROR,	  "Unknown error"			   },
+	{ ERR_MNTCMD_FAILED,	  "Mouting failed"			   },
+	{ ERR_STRING_TOO_LONG,	  "Command string too long"		   },
+	{ ERR_BAD_STRING,	  "Invalid command string"		   },
+	{ ERR_TIMEOUT,		  "Timeout"				   },
+	{ ERR_NOT_A_FILE,	  "Not a regular file"			   }
 };
 #define NERRCODES (sizeof(errorcodes) / sizeof(struct error_s))
 
@@ -283,9 +283,9 @@ static struct process_s {
 	int   error;
 #define EXIT_ENOENT   127	  /* The command could not be found. */
 #define EXIT_EXEC_ERR 255	  /* Execution of the shell failed. */
-	int   saved_errno;		  /* errno set by execl(). */
-	char  *cmdstr;			  /* The command which was executed. */
-	pid_t pid;				  /* The command's PID. */
+	int   saved_errno;	  /* errno set by execl(). */
+	char  *cmdstr;		  /* The command which was executed. */
+	pid_t pid;		  /* The command's PID. */
 } proctbl[NPROCS];
 
 /*
@@ -296,7 +296,7 @@ static struct pixbuftbl_s {
 	const int  iconsize;
 #define ICON_SIZE_ICON 46
 #define ICON_SIZE_MENU 16
-	GdkPixbuf  *icon;		/* Icons for menu and devices. */
+	GdkPixbuf  *icon;	/* Icons for menu and devices. */
 	const char *name[4];	/* Icon name with alternatives. */
 } pixbuftbl[] = {
 	{ "MTP",     ICON_SIZE_ICON, NULL, { "multimedia-player",
@@ -353,12 +353,12 @@ static struct menu_commands_s {
 	const char  *name;		   /* Menu Item name. */
 	void (*cb)(GtkWidget *, gpointer); /* Callback function. */
 } menucmds[] = {
-	{ DRVCMD_OPEN,	  "_Open",				   &cb_open    },
-	{ DRVCMD_PLAY,	  "_Play",				   &cb_play    },
-	{ DRVCMD_MOUNT,	  "_Mount drive",	   	   &cb_mount   },
-	{ DRVCMD_UNMOUNT, "_Unmount drive",		   &cb_unmount },
+	{ DRVCMD_OPEN,	  "_Open",		   &cb_open    },
+	{ DRVCMD_PLAY,	  "_Play",		   &cb_play    },
+	{ DRVCMD_MOUNT,	  "_Mount drive",	   &cb_mount   },
+	{ DRVCMD_UNMOUNT, "_Unmount drive",	   &cb_unmount },
 	{ DRVCMD_SPEED,	  "_Set max. CDROM speed", &cb_speed   },
-	{ DRVCMD_EJECT,	  "_Eject media",		   &cb_eject   }
+	{ DRVCMD_EJECT,	  "_Eject media",	   &cb_eject   }
 };
 #define NMENUCMDS (sizeof(menucmds) / sizeof(struct menu_commands_s))
 
@@ -433,10 +433,10 @@ enum {
  * Struct to hold all the main window's variables together.
  */
 static struct mainwin_s {
-	int		   	   *posx;	  /* Window's X-position */
-	int	   		   *posy;	  /* Window's Y-position */
-	int		   	   *width;	  /* Window's width */
-	int			   *height;	  /* Window's height */
+	int	       *posx;	  /* Window's X-position */
+	int	       *posy;	  /* Window's Y-position */
+	int	       *width;	  /* Window's width */
+	int	       *height;	  /* Window's height */
 	GtkWidget      *icon_view;
 	GtkWidget      *statusbar;
 	GtkWindow      *win;	  /* Main window. */
@@ -517,11 +517,11 @@ static dsbcfg_vardef_t vardefs[] = {
   { "ignore",	   DSBCFG_VAR_STRINGS, CFG_HIDE,	DSBCFG_VAL((char **)NULL)     }
 };
 
-static int		cmdqlen = 0;	  /* # of commands in command queue. */
-static int		cmdqidx = 0;	  /* # current command to exec. in queue */
+static int	cmdqlen = 0;	  /* # of commands in command queue. */
+static int	cmdqidx = 0;	  /* # current command to exec. in queue */
 static int      nicons  = 0;	  /* # of device icons. */
 static int      ndrives = 0;	  /* # of drives. */
-static FILE     *sock;			  /* Socket connected to dsbmd. */
+static FILE     *sock;		  /* Socket connected to dsbmd. */
 static icon_t   **icons  = NULL;  /* List of device icons. */ 
 static drive_t  **drives = NULL;  /* List of drives. */
 static dsbcfg_t *cfg	 = NULL;
