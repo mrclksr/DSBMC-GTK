@@ -584,7 +584,7 @@ main(int argc, char *argv[])
 	(void)snprintf(path_lock, sizeof(path_lock), "%s/%s", pw->pw_dir,
 	    PATH_LOCK);
 	endpwent();
-	if ((lockfd = open(path_lock, O_WRONLY | O_CREAT)) == -1)
+	if ((lockfd = open(path_lock, O_WRONLY | O_CREAT, 0600)) == -1)
 		xerr(NULL, EXIT_FAILURE, "open(%s)", path_lock);
 	if (flock(lockfd, LOCK_EX | LOCK_NB) == -1) {
 		if (errno == EWOULDBLOCK) {
