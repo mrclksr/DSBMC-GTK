@@ -1008,6 +1008,9 @@ settings_menu()
 			if (dp != NULL) {
 				del_icon(dp->dev);
 				(void)create_icontbl(mainwin.store);
+			} else if ((dp = lookupdrv(*v)) != NULL) {
+				del_icon(dp->dev);
+                                (void)create_icontbl(mainwin.store);
 			}
 		}
 		(void)create_icontbl(mainwin.store);
