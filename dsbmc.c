@@ -339,7 +339,8 @@ static struct pixbuftbl_s {
 	{ "open",    ICON_SIZE_MENU, NULL, { "document-open",	     NULL } },
 	{ "mount",   ICON_SIZE_MENU, NULL, { "go-up",		     NULL } },
 	{ "unmount", ICON_SIZE_MENU, NULL, { "go-down",		     NULL } },
-	{ "hide",    ICON_SIZE_MENU, NULL, { "list-remove",	     NULL } }
+	{ "hide",    ICON_SIZE_MENU, NULL, { "list-remove",
+					     "emblem-unreadable",    NULL } }
 };
 #define PIXBUFTBLSZ (sizeof(pixbuftbl) / sizeof(struct pixbuftbl_s))
 
@@ -462,10 +463,10 @@ static struct settingsmenu_s {
 	} cmds[SETTINGS_NCMDS];
 } settingsmenu = {
 	.cmds = {
-		{ "Filemanager: ",         NULL, "open", NULL },
+		{ "Filemanager: ",	   NULL, "open", NULL },
 		{ "Play DVDs with: ",	   NULL, "dvd",  NULL },
-		{ "Play VCDs with: ",      NULL, "vcd",  NULL },
-		{ "Play SVCDs with: ",     NULL, "svcd", NULL },
+		{ "Play VCDs with: ",	   NULL, "vcd",  NULL },
+		{ "Play SVCDs with: ",	   NULL, "svcd", NULL },
 		{ "Play Audio CDs with: ", NULL, "cdda", NULL }
 	}
 };
@@ -920,14 +921,24 @@ settings_menu()
 			    settingsmenu.cmds[i].autoplay);
 		}
 		gtk_table_attach(GTK_TABLE(table), image, 0, 1, i, i + 1,
-		    GTK_FILL, 0, 0, 0);	
+		    GTK_FILL, 0, 0, 0);
 		gtk_table_attach(GTK_TABLE(table), label, 1, 2, i, i + 1,
-		    GTK_FILL, 0, 0, 0);	
+		    GTK_FILL, 0, 0, 0);
 	 	gtk_table_attach(GTK_TABLE(table), entry[i], 2, 3, i, i + 1,
 		    GTK_EXPAND |GTK_FILL, 0, 0, 0);
+		label = new_pango_label(ALIGN_LEFT, ALIGN_CENTER,
+			    _(SETTINGS_MENU_INFO_MSG));
+		gtk_widget_set_tooltip_text(GTK_WIDGET(entry[i]),
+		    gtk_label_get_text(GTK_LABEL(label)));
+	}
+	for (j = 0; j < PIXBUFTBLSZ; j++) {
+		if (strcmp("hide", pixbuftbl[j].id) == 0) {
+			image = gtk_image_new_from_pixbuf(pixbuftbl[j].icon);
+			break;
+		}
 	}
 	label = new_label(ALIGN_LEFT, ALIGN_CENTER,
-	    _("Mount points to ignore:"));
+	    _("Ignore mount points/devices:"));
 	entry[i] = gtk_entry_new();
 
 	for (len = 0, v = *settingsmenu.ignore_list;
@@ -953,17 +964,15 @@ settings_menu()
 		free(s);
 	}
 	gtk_widget_set_tooltip_text(GTK_WIDGET(entry[i]),
-	    _("Comma separated list of mount points to ignore"));
+	    _("Comma separated list of mount points/devices to ignore\n" \
+	      "E.g.: /var/run/user/1001/gvfs, /dev/ada0p2, ..."));
 	gtk_entry_set_width_chars(GTK_ENTRY(entry[i]), 35);
+	gtk_table_attach(GTK_TABLE(table), image, 0, 1, i, i + 1,
+		    GTK_FILL, 0, 0, 0);
  	gtk_table_attach(GTK_TABLE(table), label, 1, 2, i, i + 1,
 	    GTK_FILL, 0, 0, 0);	
 	gtk_table_attach(GTK_TABLE(table), entry[i], 2, 3, i, i + 1,
 	    GTK_EXPAND | GTK_FILL, 0, 0, 0);
-
-	label = new_pango_label(ALIGN_LEFT, ALIGN_CENTER,
-	    _(SETTINGS_MENU_INFO_MSG));
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, i + 1, i + 2,
-	    GTK_FILL, 0, 0, 0);
 
 	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(win))), table,
 	    TRUE, TRUE, 0);
